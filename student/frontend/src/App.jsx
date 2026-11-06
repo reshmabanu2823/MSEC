@@ -23,6 +23,7 @@ export default function App() {
   const [portalMode, setPortalMode] = useState(() => localStorage.getItem('msec_portal_mode') || null);
   const [currentUser, setCurrentUser] = useState(() => (getToken() ? getUser() : null));
   const [dismissStudentOnboarding, setDismissStudentOnboarding] = useState(false);
+  const [showStudentModal, setShowStudentModal] = useState(false);
   const [authError, setAuthError] = useState('');
   const [stack, setStack] = useState(['dashboard']);
   const online = useOnline();
@@ -162,6 +163,8 @@ export default function App() {
         onLoginSuccess={(user) => {
           setAuthError('');
           setCurrentUser(user);
+          setDismissStudentOnboarding(false);
+          setShowStudentModal(!user?.onboarding_completed);
           if (forceAuth) window.history.replaceState(null, '', window.location.pathname);
         }}
       />
@@ -189,7 +192,7 @@ export default function App() {
     }
     const Screen = SCREEN_COMPONENTS[activeId] || SCREEN_COMPONENTS.dashboard;
     if (activeId === 'dashboard') {
-      return <Screen onNavigate={(id) => navigate(id)} userRole={role} />;
+      return <Screen onNavigate={(id) => navigate(id)} userRole={role} currentUser={currentUser} onOpenOnboarding={() => setShowStudentModal(true)} />;
     }
     const params = new URLSearchParams(savedEndpoint.split('?')[1] || '');
     return (
@@ -223,15 +226,24 @@ export default function App() {
 
   return (
     <>
-      {currentUser?.role === 'student' && !currentUser?.onboarding_completed && !dismissStudentOnboarding && (
+      {(currentUser?.role === 'student' || (!currentUser?.role && portalMode === 'student')) &&
+        ((!currentUser?.onboarding_completed && !dismissStudentOnboarding) || showStudentModal) && (
         <StudentOnboardingModal
           user={currentUser}
           onComplete={(updatedUser) => {
             setUser(updatedUser);
             setCurrentUser(updatedUser);
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(false);
           }}
-          onClose={() => setDismissStudentOnboarding(true)}
-          onCancel={() => setDismissStudentOnboarding(true)}
+          onClose={() => {
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(true);
+          }}
+          onCancel={() => {
+            setShowStudentModal(false);
+            setDismissStudentOnboarding(true);
+          }}
         />
       )}
       <TopBar key={`h-${activeId}`} {...headerProps} />
