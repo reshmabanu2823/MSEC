@@ -50,6 +50,7 @@ export default function AuthScreen({ onLoginSuccess, initialError = '', onBackTo
   const [usn, setUsn] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
+  const isTeacher = portalName.toLowerCase().includes('teacher');
 
   // OTP Code
   const [code, setCode] = useState('');
@@ -140,7 +141,8 @@ export default function AuthScreen({ onLoginSuccess, initialError = '', onBackTo
       name: name.trim(),
       password,
       department,
-      usn: usn.trim(),
+      usn: isTeacher ? '' : usn.trim(),
+      role: isTeacher ? 'faculty' : 'student',
       code: c,
     });
     finish(session);
@@ -202,7 +204,7 @@ export default function AuthScreen({ onLoginSuccess, initialError = '', onBackTo
   if (mode === 'signup') {
     if (signupStep === 'form') {
       title = 'Create an Account';
-      subtitle = 'Register your student profile. An OTP will be sent to verify your email.';
+      subtitle = isTeacher ? 'Register your faculty account. An OTP will be sent to verify your email.' : 'Register your student profile. An OTP will be sent to verify your email.';
     } else {
       title = 'Verify Your Email';
       subtitle = `We sent a 6-digit verification code to ${email}`;
@@ -410,16 +412,18 @@ export default function AuthScreen({ onLoginSuccess, initialError = '', onBackTo
                 </select>
               </label>
 
-              <label className="auth__field">
-                <span className="visually-hidden">USN (Optional)</span>
-                <input
-                  type="text"
-                  placeholder="USN (Optional, e.g. 1MS21CS084)"
-                  value={usn}
-                  disabled={busy}
-                  onChange={(e) => setUsn(e.target.value)}
-                />
-              </label>
+              {!isTeacher && (
+                <label className="auth__field">
+                  <span className="visually-hidden">USN (Optional)</span>
+                  <input
+                    type="text"
+                    placeholder="USN (Optional, e.g. 1MS21CS084)"
+                    value={usn}
+                    disabled={busy}
+                    onChange={(e) => setUsn(e.target.value)}
+                  />
+                </label>
+              )}
 
               <div className="auth__field auth__field--password">
                 <input
@@ -564,7 +568,7 @@ export default function AuthScreen({ onLoginSuccess, initialError = '', onBackTo
           )}
         </form>
 
-        <p className="auth__footer">MS Engineering College Student Portal</p>
+        <p className="auth__footer">MS Engineering College {isTeacher ? 'Faculty Portal' : 'Student Portal'}</p>
       </main>
     </div>
   );

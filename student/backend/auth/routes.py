@@ -344,20 +344,35 @@ def signup_verify():
             return jsonify({'error': 'Account already exists. Please sign in.'}), 409
 
         import secrets
-        if not usn:
-            usn = f"1MS24CS{secrets.randbelow(900) + 100}"
+        role = data.get('role', 'student').strip().lower()
+        if role not in ('student', 'faculty'):
+            role = 'student'
 
         pwd_hash = generate_password_hash(password)
-        conn.execute(
-            "INSERT INTO users (email, password_hash, role, name, identifier, department, semester, active) VALUES (?, ?, 'student', ?, ?, ?, 1, 1)",
-            (email, pwd_hash, name, usn, department)
-        )
-        user_row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
-        conn.execute(
-            "INSERT INTO student_profiles (user_id, usn, name, department, college_name, semester, section, email) VALUES (?, ?, ?, ?, 'MS Engineering College', 1, 'A', ?)",
-            (user_row['id'], usn, name, department, email)
-        )
+        if role == 'faculty':
+            fac_id = usn if usn else f"EMP{secrets.randbelow(900) + 100}"
+            conn.execute(
+                "INSERT INTO users (email, password_hash, role, name, identifier, department, semester, active) VALUES (?, ?, 'faculty', ?, ?, ?, 0, 1)",
+                (email, pwd_hash, name, fac_id, department)
+            )
+            user_row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+            # Assign standard department classes
+            conn.execute("INSERT INTO teacher_classes (user_id, department, semester) VALUES (?, ?, 6)", (user_row['id'], department))
+            conn.execute("INSERT INTO teacher_classes (user_id, department, semester) VALUES (?, ?, 4)", (user_row['id'], department))
+        else:
+            if not usn:
+                usn = f"1MS24CS{secrets.randbelow(900) + 100}"
+            conn.execute(
+                "INSERT INTO users (email, password_hash, role, name, identifier, department, semester, active) VALUES (?, ?, 'student', ?, ?, ?, 1, 1)",
+                (email, pwd_hash, name, usn, department)
+            )
+            user_row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+            conn.execute(
+                "INSERT INTO student_profiles (user_id, usn, name, department, college_name, semester, section, email) VALUES (?, ?, ?, ?, 'MS Engineering College', 1, 'A', ?)",
+                (user_row['id'], usn, name, department, email)
+            )
+
         conn.commit()
 
         return session_response(conn, user_row, remember=True)
