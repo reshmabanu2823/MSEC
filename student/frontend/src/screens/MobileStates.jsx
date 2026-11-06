@@ -16,6 +16,13 @@ export function OfflineScreen({ screenId, onShowSaved }) {
   async function retry() {
     setRetrying(true);
     setMessage('');
+    if (!endpoint) {
+      // Screens without saved records: wait for the connection, then reload the screen.
+      setRetrying(false);
+      if (navigator.onLine !== false) onShowSaved();
+      else setMessage('Still unable to connect. Try again when you’re online.');
+      return;
+    }
     try {
       await apiRequest(saved?.endpoint || (screenId === 'academics' ? `${endpoint}?semester=6` : screenId === 'timetable' ? `${endpoint}?view=daily&day=1` : endpoint));
       onShowSaved(saved?.endpoint);

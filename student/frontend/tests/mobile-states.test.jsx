@@ -27,3 +27,10 @@ it('offline state explains missing saved records and can retry', () => {
   expect(screen.getByText('Connect to load your student records.')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument();
 });
+
+it('live-only screens show the offline state while offline', async () => {
+  vi.spyOn(window.navigator, 'onLine', 'get').mockReturnValue(false);
+  render(<App />);
+  act(() => { window.__msecNav.navigate('fees'); });
+  expect(screen.getByRole('heading', { name: "You're offline" })).toBeInTheDocument();
+});

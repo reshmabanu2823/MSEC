@@ -52,7 +52,7 @@ describe('DashboardScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down')).mockResolvedValueOnce(summary);
     render(<DashboardHome onNavigate={() => {}} />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('region', { name: 'Student summary for Alex Kumar' })).toBeInTheDocument();
     expect(apiRequest).toHaveBeenCalledTimes(2);
   });

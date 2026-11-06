@@ -95,7 +95,7 @@ describe('PerformanceAnalyticsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<PerformanceAnalyticsView />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('9.68')).toBeInTheDocument();
   });
 });

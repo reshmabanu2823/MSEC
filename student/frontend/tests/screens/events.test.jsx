@@ -92,7 +92,7 @@ describe('EventsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<EventsView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Hack Night')).toBeInTheDocument();
   });
 

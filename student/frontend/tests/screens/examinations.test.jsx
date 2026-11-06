@@ -60,7 +60,7 @@ describe('ExaminationsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<ExaminationsView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
   });
 
@@ -85,7 +85,7 @@ describe('ExaminationsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     fireEvent.click(screen.getByRole('button', { name: 'Submit Revaluation Application' }));
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('done')).toBeInTheDocument();
   });
 

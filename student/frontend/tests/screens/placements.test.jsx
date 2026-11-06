@@ -163,7 +163,7 @@ describe('PlacementsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<PlacementsView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Acme Corp')).toBeInTheDocument();
   });
 });

@@ -13,7 +13,7 @@ describe('ErrorCard', () => {
     const onRetry = vi.fn();
     render(<ErrorCard error={new NetworkError()} onRetry={onRetry} />);
     expect(screen.getByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
@@ -30,7 +30,7 @@ describe('ErrorCard', () => {
 
   it('omits the Retry button when onRetry is not given', () => {
     render(<ErrorCard error={new NetworkError()} />);
-    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 });
 

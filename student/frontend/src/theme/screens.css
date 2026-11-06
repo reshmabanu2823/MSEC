@@ -319,3 +319,7 @@
   background: var(--primary); color: #fff;
   font: 700 26px var(--font-head);
 }
+
+/* While a screen shows the offline state, hide its other content (design screen 07). */
+.app-main .page:has(.error-card--offline) > :not(.error-card--offline):not(:has(.error-card--offline)) { display: none; }
+.app-main .error-card--offline { animation: rise-in .4s var(--ease-out) both; }

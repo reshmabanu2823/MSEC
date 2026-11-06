@@ -155,7 +155,7 @@ describe('CampusServicesScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<CampusServicesView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('R1 - Yelahanka to Campus')).toBeInTheDocument();
   });
 });

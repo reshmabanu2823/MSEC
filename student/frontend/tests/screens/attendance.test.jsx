@@ -51,7 +51,7 @@ describe('AttendanceScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down')).mockResolvedValueOnce(attendance);
     render(<AttendanceView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Compilers')).toBeInTheDocument();
     expect(apiRequest).toHaveBeenCalledTimes(2);
   });
@@ -89,7 +89,7 @@ describe('AttendanceCalculatorScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down')).mockResolvedValueOnce(attendance).mockResolvedValueOnce(sim);
     render(<AttendanceCalculatorView />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     await waitFor(() => expect(screen.getByText('10 safe bunks remaining')).toBeInTheDocument());
   });
 });

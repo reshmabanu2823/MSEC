@@ -64,7 +64,7 @@ describe('AcademicsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down')).mockResolvedValueOnce(perf);
     render(<AcademicPerformanceView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Compilers')).toBeInTheDocument();
   });
 
