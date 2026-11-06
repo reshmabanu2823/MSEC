@@ -132,6 +132,47 @@ export default function PortalGateway({ onSelectPortal }) {
             Enter Library Dashboard &rarr;
           </button>
         </div>
+
+        {/* Card 4: Hostel Management Dashboard Access */}
+        <div className="gateway__card" data-qa="hostel-portal-card">
+          <div className="gateway__card-top">
+            <span className="gateway__card-badge gateway__card-badge--hostel">Campus Residence</span>
+            <div className="gateway__card-icon gateway__card-icon--hostel">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M5 21V7l8-4v18"/>
+                <path d="M19 21V11l-6-3"/>
+                <path d="M9 9h1"/>
+                <path d="M9 13h1"/>
+                <path d="M9 17h1"/>
+              </svg>
+            </div>
+          </div>
+
+          <div className="gateway__card-content">
+            <h2 className="gateway__card-title">Hostel Dashboard</h2>
+            <p className="gateway__card-desc">
+              Campus residential portal to manage room allocations, mess menus, leave & out-passes, maintenance complaints, and warden notices.
+            </p>
+
+            <div className="gateway__features">
+              <span className="gateway__feature-tag">Room Allocation</span>
+              <span className="gateway__feature-tag">Mess Timetable</span>
+              <span className="gateway__feature-tag">Out-Pass Requests</span>
+              <span className="gateway__feature-tag">Fee Status</span>
+              <span className="gateway__feature-tag">Complaints & Repairs</span>
+              <span className="gateway__feature-tag">Warden Notices</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="gateway__card-btn gateway__card-btn--hostel"
+            onClick={() => onSelectPortal('hostel')}
+          >
+            Enter Hostel Dashboard &rarr;
+          </button>
+        </div>
       </main>
 
       <footer className="gateway__footer">

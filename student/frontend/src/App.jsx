@@ -7,6 +7,7 @@ import AuthScreen from './screens/AuthScreen';
 import PortalGateway from './screens/PortalGateway';
 import TeacherDashboardScreen from './screens/TeacherDashboardScreen';
 import LibraryPortalWrapper from './screens/LibraryPortalWrapper';
+import HostelPortalWrapper from './screens/HostelPortalWrapper';
 import StudentOnboardingModal from './components/StudentOnboardingModal';
 import SCREEN_COMPONENTS from './screens/index.js';
 import { SCREENS, TABS, tabFor, pushScreen, popScreen } from './nav';
@@ -121,6 +122,11 @@ export default function App() {
   // 2. LIBRARY PORTAL: Dedicated digital library access
   if (portalMode === 'library') {
     return <LibraryPortalWrapper onSwitchPortal={handleSwitchPortal} />;
+  }
+
+  // HOSTEL MANAGEMENT PORTAL: Campus residence management
+  if (portalMode === 'hostel') {
+    return <HostelPortalWrapper onSwitchPortal={handleSwitchPortal} user={currentUser} />;
   }
 
   // 3. TEACHER DASHBOARD ACCESS

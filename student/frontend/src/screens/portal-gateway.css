@@ -80,12 +80,19 @@
 }
 
 .gateway__grid {
-  max-width: 960px;
+  max-width: 980px;
   width: 100%;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .gateway__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .gateway__card {
@@ -138,6 +145,11 @@
   color: var(--info-ink);
 }
 
+.gateway__card-badge--hostel {
+  background: #fef3c7;
+  color: #b45309;
+}
+
 .gateway__card-icon {
   width: 44px;
   height: 44px;
@@ -161,6 +173,11 @@
 .gateway__card-icon--library {
   background: var(--info-tint);
   color: var(--info);
+}
+
+.gateway__card-icon--hostel {
+  background: #fef3c7;
+  color: #d97706;
 }
 
 .gateway__card-content {
@@ -243,6 +260,15 @@
 
 .gateway__card-btn--library:hover {
   background: #1A477A;
+}
+
+.gateway__card-btn--hostel {
+  background: #D97706;
+  color: #ffffff;
+}
+
+.gateway__card-btn--hostel:hover {
+  background: #B45309;
 }
 
 .gateway__footer {
