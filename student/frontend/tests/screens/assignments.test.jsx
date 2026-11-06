@@ -34,7 +34,7 @@ beforeEach(() => {
 describe('AssignmentsScreen', () => {
   it('renders assignment cards with status, score and student actions', async () => {
     render(<AssignmentsView userRole="student" />);
-    expect(await screen.findByText('CS601: Raft Lab')).toBeInTheDocument();
+    expect(await screen.findByText('Raft Lab')).toBeInTheDocument();
     expect(screen.getByText('27 / 30')).toBeInTheDocument();
     expect(screen.getByText('"Great work"')).toBeInTheDocument();
     expect(screen.getAllByText('Pending Evaluation').length).toBe(2);
@@ -50,16 +50,16 @@ describe('AssignmentsScreen', () => {
     render(<AssignmentsView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByText('CS601: Raft Lab')).toBeInTheDocument();
+    expect(await screen.findByText('Raft Lab')).toBeInTheDocument();
   });
 
   it('subject filter requests the filtered list', async () => {
     render(<AssignmentsView userRole="student" />);
-    await screen.findByText('CS601: Raft Lab');
+    await screen.findByText('Raft Lab');
     fireEvent.change(screen.getByLabelText('Subject'), { target: { value: 'CS602' } });
-    expect(await screen.findByText('CS602: MLP Report')).toBeInTheDocument();
+    expect(await screen.findByText('MLP Report')).toBeInTheDocument();
     expect(apiRequest).toHaveBeenCalledWith('/assignments?subject=CS602');
-    expect(screen.queryByText('CS601: Raft Lab')).toBeNull();
+    expect(screen.queryByText('Raft Lab')).toBeNull();
   });
 
   it('ignores a late response from an older filter', async () => {
@@ -68,18 +68,18 @@ describe('AssignmentsScreen', () => {
     render(<AssignmentsView userRole="student" />);
     fireEvent.change(screen.getByLabelText('Subject'), { target: { value: 'CS602' } });
     pending['/assignments?subject=CS602']({ assignments: [rows[1]] });
-    expect(await screen.findByText('CS602: MLP Report')).toBeInTheDocument();
+    expect(await screen.findByText('MLP Report')).toBeInTheDocument();
     pending['/assignments']({ assignments: rows });
     await Promise.resolve();
     await Promise.resolve();
-    expect(screen.queryByText('CS601: Raft Lab')).toBeNull();
+    expect(screen.queryByText('Raft Lab')).toBeNull();
   });
 
   it('student upload posts multipart to the upload endpoint; Escape closes; focus starts in the dialog', async () => {
     const fetchMock = vi.fn().mockResolvedValue({ json: async () => ({ message: 'Uploaded' }) });
     vi.stubGlobal('fetch', fetchMock);
     render(<AssignmentsView userRole="student" />);
-    await screen.findByText('CS601: Raft Lab');
+    await screen.findByText('Raft Lab');
     fireEvent.click(screen.getAllByRole('button', { name: 'Upload File' })[0]);
     expect(screen.getByLabelText(/Select Document/)).toHaveFocus();
     expect(document.querySelector('.sheet .sticky-actions')).not.toBeNull();
@@ -101,7 +101,7 @@ describe('AssignmentsScreen', () => {
   it('upload network failure (TypeError) shows the network ErrorCard in the dialog', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     render(<AssignmentsView userRole="student" />);
-    await screen.findByText('CS601: Raft Lab');
+    await screen.findByText('Raft Lab');
     fireEvent.click(screen.getAllByRole('button', { name: 'Upload File' })[0]);
     fireEvent.click(screen.getByRole('button', { name: 'Submit Deliverable' }));
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('AssignmentsScreen', () => {
 
   it('faculty creates an assignment with the same payload', async () => {
     render(<AssignmentsView userRole="faculty" />);
-    await screen.findByText('CS601: Raft Lab');
+    await screen.findByText('Raft Lab');
     expect(screen.queryByRole('button', { name: 'Upload File' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: '+ Create Assignment' }));
     fireEvent.change(screen.getByLabelText('Assignment Title'), { target: { value: 'Paxos' } });
@@ -129,7 +129,7 @@ describe('AssignmentsScreen', () => {
 
   it('faculty grades a submission with the same payload', async () => {
     render(<AssignmentsView userRole="admin" />);
-    await screen.findByText('CS601: Raft Lab');
+    await screen.findByText('Raft Lab');
     fireEvent.click(screen.getAllByRole('button', { name: 'Grade & Feedback' })[1]);
     fireEvent.click(screen.getByRole('button', { name: 'Save Evaluation' }));
     await waitFor(() =>

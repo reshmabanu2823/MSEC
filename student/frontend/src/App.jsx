@@ -13,6 +13,7 @@ import { useOnline } from './useOnline';
 import { NotFoundScreen, OfflineScreen, OFFLINE_ENDPOINTS } from './screens/MobileStates';
 import './screens/mobile-reference.css';
 import './theme/responsive.css';
+import './theme/screens.css';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState(() => (getToken() ? getUser() : null));

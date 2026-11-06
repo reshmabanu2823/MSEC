@@ -1,0 +1,321 @@
+/* MSEC Mobile design system applied to every feature screen (loaded last).
+   Source: Claude Design "MSEC Mobile" — soft white cards, 22px radii, purple primary, Poppins headings. */
+
+:root {
+  --card-radius: 22px;
+  --card-shadow: 0 1px 2px rgba(26, 21, 35, .04), 0 8px 24px rgba(78, 36, 120, .06);
+  --card-shadow-hover: 0 2px 4px rgba(26, 21, 35, .05), 0 14px 32px rgba(78, 36, 120, .10);
+  --ctl-radius: 14px;
+}
+
+/* ---------- Page rhythm ---------- */
+.app-main .page { gap: 20px; }
+.app-main .section-title,
+.app-main h2.section-title,
+.app-main h3.section-title {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font: 600 18px/1.35 var(--font-head);
+  letter-spacing: -.005em;
+}
+
+/* ---------- Cards ---------- */
+.app-main .card {
+  border: 0;
+  border-radius: var(--card-radius);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  padding: 18px;
+}
+
+/* Data cards (assignments, notes, exams, events, library, placements, projects, services …) */
+.data-cards { gap: 14px; }
+.data-card { gap: 14px; padding: 18px !important; transition: box-shadow .2s var(--ease-out), transform .2s var(--ease-out); }
+.data-card--button:hover { box-shadow: var(--card-shadow-hover); }
+.data-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; }
+.data-card-heading { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.data-card-kicker { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--primary); }
+.data-card-title { font: 600 16px/1.35 var(--font-head); color: var(--ink); overflow-wrap: anywhere; }
+.data-card-value { flex: none; }
+.data-card-body { margin: -4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.data-card-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+  padding: 14px 0 0;
+  border-top: 1px solid #F1EDF5;
+}
+.data-card-meta div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.data-card-meta dt { font-size: 12px; font-weight: 500; color: var(--muted); }
+.data-card-meta dd { margin: 0; font-size: 14px; font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+.data-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.data-card-actions > * { flex: 1 1 auto; }
+.data-card-actions .btn { min-height: 42px; border-radius: 999px; }
+
+/* ---------- Stat tiles ---------- */
+.app-main .stat-grid, .app-main .stats-grid { gap: 12px; }
+.app-main .stat-tile, .app-main .stat-card {
+  border: 0;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  padding: 14px 16px;
+  gap: 2px;
+}
+.app-main .stat-tile:first-child, .app-main .stat-card:first-child { background: var(--primary); }
+.app-main .stat-tile:first-child *, .app-main .stat-card:first-child * { color: #fff !important; }
+.app-main .stat-tile:first-child span, .app-main .stat-card:first-child .stat-label { color: var(--primary-tint) !important; }
+.app-main .stat-tile strong, .app-main .stat-value { font: 700 24px/1.15 var(--font-head) !important; color: var(--ink); }
+.app-main .stat-tile span, .app-main .stat-label, .app-main .stat-sub { font-size: 12px; color: var(--muted); }
+
+/* ---------- Buttons ---------- */
+.app-main .btn, .sheet .btn, .app-main .btn-secondary {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 600 14px var(--font-body);
+}
+.app-main .btn:hover:not(:disabled), .app-main .btn-secondary:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.app-main .btn-primary, .sheet .btn-primary {
+  border-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: var(--primary-ink) !important;
+  box-shadow: 0 6px 16px rgba(78, 36, 120, .22);
+}
+.app-main .btn-primary:hover:not(:disabled), .sheet .btn-primary:hover:not(:disabled) { background: var(--primary-deep) !important; }
+.app-main .btn-ghost { border-color: transparent; background: var(--primary-tint); color: var(--primary); }
+.app-main .btn-danger { border-color: var(--bad-tint); background: var(--bad-tint); color: var(--bad-ink); }
+/* Full-width primary CTAs (e.g. "+ Create Assignment") read as a pill, not a slab. */
+.app-main .page > .btn-primary, .app-main .page > button.btn-primary { align-self: flex-start; min-height: 48px; padding: 0 22px; }
+
+/* ---------- Form fields ---------- */
+.app-main .field, .sheet .field { gap: 6px; }
+.app-main .field > span, .app-main .field label, .sheet .field > span, .sheet .field label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.app-main .field input, .app-main .field select, .app-main .field textarea,
+.sheet .field input, .sheet .field select, .sheet .field textarea {
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--ctl-radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: 15px var(--font-body);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.app-main .field textarea, .sheet .field textarea { padding: 12px 14px; min-height: 96px; }
+.app-main .field select, .sheet .field select {
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235C5468' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.app-main .field input:focus, .app-main .field select:focus, .app-main .field textarea:focus,
+.sheet .field input:focus, .sheet .field select:focus, .sheet .field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+/* A lone filter select at the top of a screen sits compact, not full width. */
+.app-main .page > .field:first-child { max-width: 360px; }
+
+/* ---------- Segmented tabs ---------- */
+.app-main .tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.app-main .tabs::-webkit-scrollbar { display: none; }
+.app-main .tabs > button, .app-main .tabs [role="tab"] {
+  flex: 1 0 auto;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  font: 600 14px var(--font-body);
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+.app-main .tabs > button.is-active, .app-main .tabs > button[aria-selected="true"],
+.app-main .tabs [role="tab"][aria-selected="true"], .app-main .tabs > .btn-primary {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+/* ---------- Pills & notices ---------- */
+.app-main .pill, .app-main .status-pill { padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.app-main .status-success { color: var(--good-ink); background: var(--good-tint); }
+.app-main .status-danger { color: var(--bad-ink); background: var(--bad-tint); }
+.app-main .status-neutral { color: var(--muted); background: var(--surface-2); }
+.app-main .status-primary { color: var(--primary); background: var(--primary-tint); }
+.app-main .notice { border: 0; border-radius: 18px; padding: 12px 14px; font-size: 14px; }
+
+/* ---------- Tables ---------- */
+.app-main .table-responsive { border-radius: 18px; background: var(--surface); box-shadow: var(--card-shadow); overflow-x: auto; }
+.app-main .table-responsive table, .app-main table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.app-main th { padding: 12px 14px; text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); background: transparent; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.app-main td { padding: 12px 14px; border-bottom: 1px solid #F1EDF5; color: var(--ink); }
+.app-main tr:last-child td { border-bottom: 0; }
+
+/* ---------- Empty states ---------- */
+.app-main .empty-state {
+  padding: 36px 20px;
+  border-radius: var(--card-radius);
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  color: var(--muted);
+}
+
+/* ---------- Sheets ---------- */
+.sheet.card { border: 0; border-radius: 26px 26px 0 0; padding: 22px 20px calc(20px + var(--safe-bottom)); box-shadow: 0 -10px 40px rgba(26, 21, 35, .18); }
+.sheet .section-title { color: var(--ink); font: 600 20px/1.3 var(--font-head); }
+@media (min-width: 768px) { .sheet.card { border-radius: 26px; } }
+
+@media (min-width: 1024px) {
+  .data-card-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- Search/filter forms become one toolbar row on wider screens ---------- */
+@media (min-width: 768px) {
+  .app-main form.card:is([class*="__form"], [class*="__filters"]):not(:has(textarea)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    align-items: end;
+    gap: 12px;
+  }
+  .app-main form.card:is([class*="__form"], [class*="__filters"]):not(:has(textarea)) > :is(.btn, button) { width: auto; min-width: 140px; }
+}
+
+/* ---------- Charts keep readable label sizes on wide screens ---------- */
+.analytics__svg { max-width: 640px; margin-inline: auto; }
+
+/* ---------- Legacy module views (Profile, Notifications, Doubts, Fees, Faculty Mentor) ---------- */
+.app-main .panel-card {
+  border: 0 !important;
+  border-radius: var(--card-radius) !important;
+  background: var(--surface) !important;
+  box-shadow: var(--card-shadow) !important;
+  overflow: hidden;
+  margin-bottom: 0 !important;
+}
+.app-main .panel-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 18px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+.app-main .panel-card-title { margin: 0; color: var(--ink) !important; font: 600 17px/1.35 var(--font-head) !important; }
+.app-main .panel-card-body { padding: 14px 18px 18px !important; }
+
+/* Intro banners read as a page subtitle, not a boxed header. */
+.app-main .banner-card {
+  padding: 0 !important;
+  border: 0 !important;
+  border-left: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.app-main .banner-title { color: var(--ink) !important; font: 600 17px/1.35 var(--font-head) !important; margin: 0 0 4px !important; }
+.app-main .banner-sub { color: var(--muted) !important; font-size: 14px !important; }
+
+.app-main .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.app-main .form-label { font-size: 13px !important; font-weight: 500; color: var(--muted) !important; }
+.app-main .form-input, .app-main .form-select, .app-main .form-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--ctl-radius) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  font: 15px var(--font-body) !important;
+}
+.app-main .form-textarea { padding: 12px 14px; min-height: 96px; }
+.app-main .form-input:focus, .app-main .form-select:focus, .app-main .form-textarea:focus {
+  outline: none;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-tint);
+}
+
+.app-main .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.app-main .data-table th { background: transparent !important; color: var(--muted) !important; }
+
+.app-main .stats-grid, .app-main .dashboard-stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  gap: 12px !important;
+}
+.app-main .dashboard-sections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.app-main .stat-card { border-left: 0 !important; }
+.app-main .stat-footer { color: var(--muted); font-size: 12px; }
+
+.app-main .alert-box { border: 0 !important; border-radius: 16px !important; padding: 12px 14px !important; font-size: 14px; }
+.app-main .alert-success { background: var(--good-tint) !important; color: var(--good-ink) !important; }
+.app-main .alert-danger { background: var(--bad-tint) !important; color: var(--bad-ink) !important; }
+
+/* Tab-like button rows inside module views */
+.app-main .panel-card-header .btn-primary, .app-main .panel-card-header .btn-secondary { min-height: 38px; padding: 0 14px; }
+
+/* Digital ID card */
+.app-main .id-card-header { background: var(--primary) !important; color: #fff !important; }
+.app-main .id-field-label { color: var(--muted) !important; font-size: 12px !important; }
+.app-main .id-field-value { color: var(--ink) !important; font-weight: 600; }
+
+/* Nothing in a module view may push the page wider than the screen. */
+.app-main .panel-card, .app-main .panel-card-body, .app-main .table-responsive { max-width: 100%; }
+.app-main .table-responsive, .app-main .panel-card-body.table-responsive { overflow-x: auto; }
+.app-main .panel-card-body img { max-width: 100%; height: auto; }
+
+/* Legacy tab rows (Fees, Faculty Mentor) -> scrollable segmented pills */
+.app-main .auth-tabs {
+  display: flex !important;
+  gap: 4px;
+  padding: 4px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--card-shadow);
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 100%;
+}
+.app-main .auth-tabs::-webkit-scrollbar { display: none; }
+.app-main .auth-tab {
+  flex: 0 0 auto !important;
+  min-height: 40px;
+  padding: 0 16px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  font: 600 14px var(--font-body) !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.app-main .auth-tab.active { background: var(--primary) !important; color: #fff !important; }
+/* The screen header already shows the title. */
+.app-main .page-title { display: none; }
+
+.profile-photo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.profile-photo--initials {
+  display: flex; align-items: center; justify-content: center;
+  min-width: 64px; min-height: 64px;
+  background: var(--primary); color: #fff;
+  font: 700 26px var(--font-head);
+}

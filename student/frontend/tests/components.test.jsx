@@ -44,7 +44,7 @@ describe('DataCards', () => {
   it('renders one .card per row', () => {
     const { container } = render(<DataCards rows={rows} title={(r) => r.name} />);
     expect(container.querySelectorAll('.card')).toHaveLength(3);
-    expect(screen.getByText('Databases')).toHaveClass('truncate');
+    expect(screen.getByText('Databases')).toHaveClass('data-card-title');
   });
 
   it('renders value next to the title and meta as label/value pairs, skipping empty values', () => {
