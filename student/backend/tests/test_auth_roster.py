@@ -152,3 +152,24 @@ def test_csv_import_multipart(client):
 def test_csv_missing_columns(client):
     r = client.post('/api/admin/roster/import', json={'csv': 'email,name\nx@gmail.com,X\n'}, headers=auth(ADMIN))
     assert r.status_code == 400
+
+
+def test_submissions_list_scoped_to_teacher_classes(client):
+    import io
+    # Alex submits assignment 2
+    r = client.post('/api/assignments/2/upload', data={'file': (io.BytesIO(b'x'), 'raft.zip')}, headers=auth(ALEX), content_type='multipart/form-data')
+    assert r.status_code == 200
+    t = 'subs@gmail.com'; make_user(t, role='faculty', name='Subs')
+    assign(t, CSE, 6)
+    r = client.get('/api/assignments/2/submissions', headers=auth(t))
+    assert r.status_code == 200
+    subs = r.get_json()['submissions']
+    alex = [s for s in subs if s['student_id'] == 1]
+    assert alex and alex[0]['file_name'] == 'raft.zip' and alex[0]['usn'] == '1MS21CS084'
+    other = 'subs2@gmail.com'; make_user(other, role='faculty', name='Other')
+    assign(other, 'Mechanical', 2)
+    assert client.get('/api/assignments/2/submissions', headers=auth(other)).get_json()['submissions'] == []
+    assert client.get('/api/assignments/2/submissions', headers=auth(ALEX)).status_code == 403
+    # grading needs the student id and respects scope
+    assert client.post('/api/assignments/2/evaluate', json={'scored_marks': 20, 'feedback': 'ok', 'student_id': 1}, headers=auth(other)).status_code == 403
+    assert client.post('/api/assignments/2/evaluate', json={'scored_marks': 20, 'feedback': 'ok', 'student_id': 1}, headers=auth(t)).status_code == 200

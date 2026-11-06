@@ -36,6 +36,7 @@ ROLE_RULES = {
     # Assignments, notes, exams
     'create_assignment': STAFF,
     'evaluate_assignment': STAFF,
+    'list_assignment_submissions': STAFF,
     'upload_study_material': STAFF,
     'toggle_hall_ticket_publish': STAFF,
     # Placements

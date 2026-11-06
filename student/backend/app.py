@@ -630,6 +630,21 @@ def upload_assignment_submission(assignment_id):
 
     return jsonify({'message': f'Assignment file "{filename}" submitted successfully. Status: {status}.'})
 
+@app.route('/api/assignments/<int:assignment_id>/submissions', methods=['GET'])
+def list_assignment_submissions(assignment_id):
+    """Staff: submissions for one assignment, limited to students in the teacher's classes."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT s.id, s.student_id, s.student_name, s.file_name, s.submitted_at, s.status, s.scored_marks, s.feedback,
+               u.identifier AS usn, u.department, u.semester
+        FROM assignment_submissions s JOIN users u ON u.id = s.student_id
+        WHERE s.assignment_id = ?
+        ORDER BY s.submitted_at DESC
+    """, (assignment_id,)).fetchall()
+    out = [dict(r) for r in rows if staff_can_access_student(conn, r['student_id'])]
+    conn.close()
+    return jsonify({'submissions': out})
+
 @app.route('/api/assignments/<int:assignment_id>/evaluate', methods=['POST'])
 def evaluate_assignment(assignment_id):
     data = request.get_json() or {}
