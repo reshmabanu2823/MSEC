@@ -35,7 +35,7 @@ function Eye({ open }) {
   );
 }
 
-export default function AuthScreen({ onLoginSuccess, initialError = '' }) {
+export default function AuthScreen({ onLoginSuccess, initialError = '', onBackToGateway, portalName = 'Student' }) {
   const [config, setConfig] = useState({ google: false, email: true, loaded: false });
   // mode: 'signin' | 'signup' | 'forgot' | 'code_login'
   const [mode, setMode] = useState('signin');
@@ -222,9 +222,29 @@ export default function AuthScreen({ onLoginSuccess, initialError = '' }) {
 
   return (
     <div className="auth" data-qa="auth-screen">
-      <header className="auth__brand">
-        <img src="/favicon.svg" width="40" height="40" alt="" />
-        <span className="auth__wordmark">MSEC<small>Student</small></span>
+      <header className="auth__brand" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/favicon.svg" width="40" height="40" alt="" />
+          <span className="auth__wordmark">MSEC<small>{portalName}</small></span>
+        </div>
+        {onBackToGateway && (
+          <button
+            type="button"
+            onClick={onBackToGateway}
+            style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--line)',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--muted)',
+              cursor: 'pointer'
+            }}
+          >
+            ← Portals
+          </button>
+        )}
       </header>
 
       <main className="auth__panel">

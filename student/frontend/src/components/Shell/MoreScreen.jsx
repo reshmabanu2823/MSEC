@@ -3,7 +3,7 @@ import { SCREENS, MORE_GROUPS } from '../../nav';
 import { Icon } from './icons';
 import { initials } from './TopBar';
 
-export default function MoreScreen({ onOpen, onLogout, onLogoutAll, user }) {
+export default function MoreScreen({ onOpen, onLogout, onLogoutAll, onSwitchPortal, user }) {
   return (
     <div className="more">
       {user && <button type="button" className="more__profile" onClick={() => onOpen('profile')}>
@@ -31,6 +31,13 @@ export default function MoreScreen({ onOpen, onLogout, onLogoutAll, user }) {
           )}
           {group.title === 'Account' && (
             <>
+              {onSwitchPortal && (
+                <button type="button" className="more__row" onClick={onSwitchPortal}>
+                  <span className="reference-icon"><Icon name="grid" size={18} /></span>
+                  <span className="more__label">Switch Institutional Portal</span>
+                  <Icon name="chevron" size={18} />
+                </button>
+              )}
               <button type="button" className="more__row more__row--danger" onClick={onLogout}>
                 <span className="reference-icon reference-icon--accent"><Icon name="logout" size={18} /></span>
                 <span className="more__label">Log out</span>
