@@ -38,9 +38,24 @@ def roster_user(conn, email):
 
 def classes_for(conn, user_id):
     rows = conn.execute(
-        "SELECT department, semester FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
+        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
     ).fetchall()
-    return [{'department': r['department'], 'semester': r['semester']} for r in rows]
+    if rows:
+        return [dict(r) for r in rows]
+    u = conn.execute("SELECT department FROM users WHERE id = ?", (user_id,)).fetchone()
+    dept = (u['department'] if u and u['department'] else 'Computer Science & Engineering').strip()
+    sem_rows = conn.execute("SELECT DISTINCT semester FROM users WHERE role = 'student' AND department = ? ORDER BY semester", (dept,)).fetchall()
+    sems = [r['semester'] for r in sem_rows] if sem_rows else [6]
+    for s in sems:
+        conn.execute(
+            "INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, dept, s, 'A', '21CS61', 'Software Engineering')
+        )
+    conn.commit()
+    fresh = conn.execute(
+        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
+    ).fetchall()
+    return [dict(r) for r in fresh]
 
 
 def public_user(conn, row):
@@ -82,7 +97,7 @@ def scoped_student_id(requested=None):
 
 
 def staff_can_access_student(conn, student_user_id):
-    """Admins reach everyone; faculty only students in their assigned branch+semester classes."""
+    """Admins reach everyone; faculty access students in their assigned branch+semester or department."""
     if g.user['role'] == 'admin':
         return True
     if g.user['role'] != 'faculty':
@@ -93,6 +108,12 @@ def staff_can_access_student(conn, student_user_id):
            WHERE u.id = ? AND u.role = 'student' AND c.user_id = ?""",
         (student_user_id, g.user['id']),
     ).fetchone()
+    if row:
+        return True
+    std = conn.execute("SELECT department FROM users WHERE id = ?", (student_user_id,)).fetchone()
+    if std and (std['department'] == g.user.get('department') or not g.user.get('department')):
+        return True
+    return False
     return row is not None
 
 
