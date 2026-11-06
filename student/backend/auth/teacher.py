@@ -66,7 +66,7 @@ def teacher_onboarding():
     try:
         # 1. Update users
         conn.execute(
-            "UPDATE users SET name = ?, department = ?, onboarding_completed = TRUE WHERE id = ?",
+            "UPDATE users SET name = ?, department = ?, role = 'faculty', onboarding_completed = TRUE WHERE id = ?",
             (name, department, user_id)
         )
 

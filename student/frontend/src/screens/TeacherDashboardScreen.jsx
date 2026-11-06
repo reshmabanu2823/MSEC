@@ -451,6 +451,8 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal,
             loadProfile();
             showAlert('Faculty setup and class allocations updated successfully.');
           }}
+          onClose={() => setShowOnboarding(false)}
+          onCancel={() => setShowOnboarding(false)}
         />
       )}
 

@@ -22,6 +22,7 @@ export default function App() {
   // portalMode: null (Gateway) | 'student' | 'teacher' | 'library'
   const [portalMode, setPortalMode] = useState(() => localStorage.getItem('msec_portal_mode') || null);
   const [currentUser, setCurrentUser] = useState(() => (getToken() ? getUser() : null));
+  const [dismissStudentOnboarding, setDismissStudentOnboarding] = useState(false);
   const [authError, setAuthError] = useState('');
   const [stack, setStack] = useState(['dashboard']);
   const online = useOnline();
@@ -222,13 +223,15 @@ export default function App() {
 
   return (
     <>
-      {currentUser?.role === 'student' && !currentUser?.onboarding_completed && (
+      {currentUser?.role === 'student' && !currentUser?.onboarding_completed && !dismissStudentOnboarding && (
         <StudentOnboardingModal
           user={currentUser}
           onComplete={(updatedUser) => {
             setUser(updatedUser);
             setCurrentUser(updatedUser);
           }}
+          onClose={() => setDismissStudentOnboarding(true)}
+          onCancel={() => setDismissStudentOnboarding(true)}
         />
       )}
       <TopBar key={`h-${activeId}`} {...headerProps} />

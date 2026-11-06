@@ -19,7 +19,8 @@ const TEACHER_ROLES = [
   'Assistant Professor & Lab In-Charge',
 ];
 
-export default function TeacherOnboardingModal({ user, onComplete }) {
+export default function TeacherOnboardingModal({ user, onComplete, onCancel, onClose }) {
+  const handleCancel = onClose || onCancel;
   const [name, setName] = useState(user?.name || '');
   const [dob, setDob] = useState(user?.profile?.dob || '1985-08-20');
   const [department, setDepartment] = useState(user?.department || DEPARTMENTS[0]);
@@ -120,6 +121,16 @@ export default function TeacherOnboardingModal({ user, onComplete }) {
   return (
     <div className="onboarding-overlay">
       <div className="onboarding-modal">
+        {handleCancel && (
+          <button
+            type="button"
+            className="onboarding-modal__close"
+            onClick={handleCancel}
+            aria-label="Cancel and close"
+          >
+            ×
+          </button>
+        )}
         <div className="onboarding-modal__head">
           <span className="onboarding-modal__badge">Faculty Enrollment</span>
           <h2 className="onboarding-modal__title">Teacher Profile & Class Allocation Setup</h2>
@@ -358,14 +369,25 @@ export default function TeacherOnboardingModal({ user, onComplete }) {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="onboarding-btn"
-            disabled={busy}
-            style={{ marginTop: '8px' }}
-          >
-            {busy ? 'Saving Allocations...' : 'Complete Setup & Open Faculty Console'}
-          </button>
+          <div className="onboarding-actions">
+            {handleCancel && (
+              <button
+                type="button"
+                className="onboarding-btn onboarding-btn--cancel"
+                onClick={handleCancel}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              type="submit"
+              className="onboarding-btn onboarding-btn--primary"
+              disabled={busy}
+            >
+              {busy ? 'Saving Allocations...' : 'Complete Setup & Open Faculty Console'}
+            </button>
+          </div>
         </form>
       </div>
     </div>

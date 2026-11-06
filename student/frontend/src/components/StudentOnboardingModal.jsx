@@ -15,7 +15,8 @@ const SECTIONS = ['A', 'B', 'C', 'D'];
 const SEMESTERS = [1, 2, 3, 4, 5, 6, 7, 8];
 const ACADEMIC_YEARS = ['1st Year (BE)', '2nd Year (BE)', '3rd Year (BE)', '4th Year (BE)'];
 
-export default function StudentOnboardingModal({ user, onComplete }) {
+export default function StudentOnboardingModal({ user, onComplete, onCancel, onClose }) {
+  const handleCancel = onClose || onCancel;
   const [name, setName] = useState(user?.name || '');
   const [usn, setUsn] = useState(user?.identifier || user?.profile?.usn || '');
   const [department, setDepartment] = useState(user?.department || DEPARTMENTS[0]);
@@ -78,6 +79,16 @@ export default function StudentOnboardingModal({ user, onComplete }) {
   return (
     <div className="onboarding-overlay">
       <div className="onboarding-modal">
+        {handleCancel && (
+          <button
+            type="button"
+            className="onboarding-modal__close"
+            onClick={handleCancel}
+            aria-label="Cancel and close"
+          >
+            ×
+          </button>
+        )}
         <div className="onboarding-modal__head">
           <span className="onboarding-modal__badge">Profile Enrollment</span>
           <h2 className="onboarding-modal__title">Complete Your Student Profile</h2>
@@ -228,14 +239,25 @@ export default function StudentOnboardingModal({ user, onComplete }) {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="onboarding-btn"
-            disabled={busy}
-            style={{ marginTop: '8px' }}
-          >
-            {busy ? 'Saving Profile...' : 'Complete Enrollment & Enter Dashboard'}
-          </button>
+          <div className="onboarding-actions">
+            {handleCancel && (
+              <button
+                type="button"
+                className="onboarding-btn onboarding-btn--cancel"
+                onClick={handleCancel}
+                disabled={busy}
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              type="submit"
+              className="onboarding-btn onboarding-btn--primary"
+              disabled={busy}
+            >
+              {busy ? 'Saving Profile...' : 'Complete Enrollment & Enter Dashboard'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
