@@ -24,10 +24,34 @@ os.makedirs(DOUBTS_UPLOAD_DIR, exist_ok=True)
 os.makedirs(MENTOR_UPLOAD_DIR, exist_ok=True)
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
+    _track(conn)
     return conn
+
+
+def _track(conn):
+    """Remember connections opened during a request so teardown can always close them."""
+    try:
+        from flask import g, has_app_context
+    except ImportError:
+        return
+    if has_app_context():
+        g.setdefault('_db_conns', []).append(conn)
+
+
+def close_request_connections(_exc=None):
+    try:
+        from flask import g
+    except ImportError:
+        return
+    for conn in g.pop('_db_conns', []):
+        try:
+            conn.rollback()
+            conn.close()
+        except Exception:
+            pass
 
 def init_db():
     conn = get_db()

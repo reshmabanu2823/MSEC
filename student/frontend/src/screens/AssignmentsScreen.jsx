@@ -4,6 +4,7 @@ import ErrorCard from '../components/ErrorCard';
 import Sheet from './Sheet';
 import './assignments.css';
 
+export const OPEN_SUBMIT_KEY = 'msec-open-submit';
 const DAY = 24 * 3600 * 1000;
 const parseDeadline = (s) => new Date(String(s || '').replace(' ', 'T'));
 
@@ -168,6 +169,12 @@ export default function AssignmentsView({ userRole, now: nowProp, chips: chipsPr
         const list = res.assignments || [];
         setAssignments(list);
         if (subject === 'ALL') setCodes((prev) => [...new Set([...prev, ...list.map((a) => a.course_code)])].sort());
+        const wanted = sessionStorage.getItem(OPEN_SUBMIT_KEY);
+        if (wanted) {
+          sessionStorage.removeItem(OPEN_SUBMIT_KEY);
+          const target = list.find((a) => String(a.id) === wanted);
+          if (target) setUploading(target);
+        }
       })
       .catch((err) => { if (id === requestId.current) setError(err); })
       .finally(() => { if (id === requestId.current) setLoading(false); });

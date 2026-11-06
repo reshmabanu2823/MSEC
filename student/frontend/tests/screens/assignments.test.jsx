@@ -122,6 +122,13 @@ describe('AssignmentsScreen (student)', () => {
     expect(await screen.findByText('Raft Lab')).toBeInTheDocument();
   });
 
+  it('opens the upload sheet when arriving from Home Submit', async () => {
+    sessionStorage.setItem('msec-open-submit', '1');
+    render(<AssignmentsView userRole="student" now={NOW} />);
+    expect(await screen.findByRole('dialog', { name: 'Submit: Raft Lab' })).toBeInTheDocument();
+    expect(sessionStorage.getItem('msec-open-submit')).toBeNull();
+  });
+
   it('students do not see staff actions', async () => {
     render(<AssignmentsView userRole="student" now={NOW} />);
     await screen.findByText('Raft Lab');

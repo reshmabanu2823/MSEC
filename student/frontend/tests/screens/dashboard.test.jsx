@@ -44,7 +44,8 @@ describe('DashboardScreen', () => {
     expect(onNavigate).toHaveBeenCalledWith('examinations');
     apiRequest.mockResolvedValueOnce({}).mockResolvedValueOnce(summary);
     fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
-    await waitFor(() => expect(apiRequest).toHaveBeenCalledWith('/assignments/7/submit', { method: 'POST' }));
+    expect(sessionStorage.getItem('msec-open-submit')).toBe('7');
+    expect(onNavigate).toHaveBeenCalledWith('assignments');
   });
 
   it('shows ErrorCard and retries', async () => {
