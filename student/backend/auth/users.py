@@ -21,7 +21,10 @@ def email_allowed(email):
     email = normalize_email(email)
     if not EMAIL_RE.match(email):
         return False
-    return email.rsplit('@', 1)[1] in allowed_domains()
+    domains = allowed_domains()
+    if '*' in domains or not domains:
+        return True
+    return email.rsplit('@', 1)[1] in domains
 
 
 def roster_user(conn, email):

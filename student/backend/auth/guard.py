@@ -20,6 +20,8 @@ PUBLIC_ENDPOINTS = {
     'auth.google_start',
     'auth.google_callback',
     'auth.google_exchange',
+    'auth.signup_request',
+    'auth.signup_verify',
 }
 
 STAFF = ('faculty', 'admin')

@@ -287,3 +287,79 @@ def google_exchange():
         return session_response(conn, row, remember)
     finally:
         conn.close()
+
+
+@bp.post('/signup/request')
+def signup_request():
+    data = body()
+    email = normalize_email(data.get('email'))
+    name = (data.get('name') or '').strip()
+    password = data.get('password') or ''
+    if not email or '@' not in email:
+        return jsonify({'error': 'Please enter a valid email address.'}), 400
+    if not name:
+        return jsonify({'error': 'Please enter your full name.'}), 400
+    if len(password) < MIN_PASSWORD:
+        return jsonify({'error': f'Password must be at least {MIN_PASSWORD} characters.'}), 400
+
+    conn = get_db()
+    try:
+        existing = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+        if existing:
+            return jsonify({'error': 'An account with this email already exists. Please sign in.'}), 409
+
+        code = otp.create_code(conn, email, 'signup')
+        try:
+            mail.send_code(email, name, code, 'verify your new account')
+        except mail.EmailError as exc:
+            return jsonify({'error': str(exc)}), 502
+        return jsonify({'message': f'Verification code sent to {email}'})
+    finally:
+        conn.close()
+
+
+@bp.post('/signup/verify')
+def signup_verify():
+    data = body()
+    email = normalize_email(data.get('email'))
+    name = (data.get('name') or '').strip()
+    password = data.get('password') or ''
+    code = (data.get('code') or '').strip()
+    department = (data.get('department') or 'Computer Science & Engineering').strip()
+    usn = (data.get('usn') or '').strip()
+
+    if not email or not password or not code or not name:
+        return jsonify({'error': 'Please provide all required fields.'}), 400
+    if len(password) < MIN_PASSWORD:
+        return jsonify({'error': f'Password must be at least {MIN_PASSWORD} characters.'}), 400
+
+    conn = get_db()
+    try:
+        res = otp.verify_code(conn, email, 'signup', code)
+        if res != 'ok':
+            return jsonify({'error': 'Invalid or expired verification code.'}), 401
+
+        existing = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+        if existing:
+            return jsonify({'error': 'Account already exists. Please sign in.'}), 409
+
+        import secrets
+        if not usn:
+            usn = f"1MS24CS{secrets.randbelow(900) + 100}"
+
+        pwd_hash = generate_password_hash(password)
+        conn.execute(
+            "INSERT INTO users (email, password_hash, role, name, identifier, department, semester, active) VALUES (?, ?, 'student', ?, ?, ?, 1, 1)",
+            (email, pwd_hash, name, usn, department)
+        )
+        user_row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+
+        conn.execute(
+            "INSERT INTO student_profiles (user_id, usn, name, department, college_name, semester, section, email) VALUES (?, ?, ?, ?, 'MS Engineering College', 1, 'A', ?)",
+            (user_row['id'], usn, name, department, email)
+        )
+        conn.commit()
+
+        return session_response(conn, user_row, remember=True)
+    finally:
+        conn.close()
