@@ -1,6 +1,7 @@
 """Comprehensive Teacher API Blueprint for MSEC Faculty Portal.
 Implements all 17 teacher features with bidirectional data synchronization
-between student and teacher portals.
+between student and teacher portals, including Class Teacher assignments,
+section-level student matching, and multi-class preference switching.
 """
 import io
 import csv
@@ -33,6 +34,89 @@ def _notify_students(conn, title, content, category='academic', priority='Normal
 
 
 # =========================================================================
+# ONBOARDING: TEACHER SETUP & CLASS ASSIGNMENT
+# =========================================================================
+@bp.post('/onboarding')
+def teacher_onboarding():
+    data = request.get_json() or {}
+    user_id = g.user['id']
+    name = (data.get('name') or g.user.get('name') or '').strip()
+    dob = (data.get('dob') or '').strip()
+    department = (data.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+    designation = (data.get('designation') or 'Assistant Professor & Faculty Mentor').strip()
+
+    is_class_teacher = bool(data.get('is_class_teacher', False))
+    ct_dept = (data.get('class_teacher_dept') or department).strip()
+    try:
+        ct_sem = int(data.get('class_teacher_sem', 6))
+    except (ValueError, TypeError):
+        ct_sem = 6
+    ct_section = (data.get('class_teacher_section') or 'A').strip().upper()
+    usn_start = (data.get('usn_start') or '').strip().upper()
+    usn_end = (data.get('usn_end') or '').strip().upper()
+
+    cabin_room = (data.get('cabin_room') or 'Room 304, CS Academic Block').strip()
+    contact_phone = (data.get('contact_phone') or '').strip()
+    office_hours = (data.get('office_hours') or '10:00 AM - 12:00 PM (Mon-Fri)').strip()
+    bio = (data.get('bio') or '').strip()
+
+    assigned_classes = data.get('assigned_classes') or [] # [{ department, semester, section, subject_code, subject_name }]
+
+    conn = get_db()
+    try:
+        # 1. Update users
+        conn.execute(
+            "UPDATE users SET name = ?, department = ?, onboarding_completed = TRUE WHERE id = ?",
+            (name, department, user_id)
+        )
+
+        # 2. Update teacher_profiles
+        prof_exist = conn.execute("SELECT id FROM teacher_profiles WHERE user_id = ?", (user_id,)).fetchone()
+        if prof_exist:
+            conn.execute(
+                """UPDATE teacher_profiles
+                   SET dob = ?, designation = ?, is_class_teacher = ?, class_teacher_dept = ?,
+                       class_teacher_sem = ?, class_teacher_section = ?, usn_start = ?, usn_end = ?,
+                       cabin_room = ?, contact_phone = ?, office_hours = ?, bio = ?, updated_at = CURRENT_TIMESTAMP
+                   WHERE user_id = ?""",
+                (dob, designation, is_class_teacher, ct_dept, ct_sem, ct_section, usn_start, usn_end, cabin_room, contact_phone, office_hours, bio, user_id)
+            )
+        else:
+            conn.execute(
+                """INSERT INTO teacher_profiles
+                   (user_id, dob, designation, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, cabin_room, contact_phone, office_hours, bio)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, dob, designation, is_class_teacher, ct_dept, ct_sem, ct_section, usn_start, usn_end, cabin_room, contact_phone, office_hours, bio)
+            )
+
+        # 3. Class allocations: clear and re-insert preferred assigned classes
+        if assigned_classes:
+            conn.execute("DELETE FROM teacher_classes WHERE user_id = ?", (user_id,))
+            for ac in assigned_classes:
+                conn.execute(
+                    """INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (user_id, ac.get('department', department), int(ac.get('semester', 6)), ac.get('section', 'A'), ac.get('subject_code', '21CS61'), ac.get('subject_name', 'Software Engineering'))
+                )
+        elif is_class_teacher:
+            conn.execute("DELETE FROM teacher_classes WHERE user_id = ?", (user_id,))
+            conn.execute(
+                """INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name)
+                   VALUES (?, ?, ?, ?, '21CS61', 'Software Engineering')""",
+                (user_id, ct_dept, ct_sem, ct_section)
+            )
+
+        conn.commit()
+
+        user_row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        from auth.users import public_user
+        fresh_user = public_user(conn, user_row)
+        return jsonify({'message': 'Faculty onboarding and class setup saved successfully.', 'user': fresh_user})
+    finally:
+        conn.close()
+
+
+# =========================================================================
 # 1. DASHBOARD OVERVIEW
 # =========================================================================
 @bp.get('/overview')
@@ -40,17 +124,28 @@ def overview():
     conn = get_db()
     try:
         user_id = g.user['id']
-        dept = (g.user.get('department') or 'Computer Science & Engineering').strip()
+        dept = (request.args.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+        sem_arg = request.args.get('semester')
+        sec_arg = request.args.get('section')
         classes = classes_for(conn, user_id)
 
-        # Count total students reachable by this faculty
-        if g.user['role'] == 'admin':
-            total_students_row = conn.execute("SELECT COUNT(*) as c FROM users WHERE role = 'student' AND active = 1").fetchone()
-        else:
-            total_students_row = conn.execute(
-                "SELECT COUNT(*) as c FROM users WHERE role = 'student' AND active = 1 AND department = ?",
-                (dept,)
-            ).fetchone()
+        # Count total students matching filter
+        std_query = "SELECT COUNT(*) as c FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id WHERE u.role = 'student' AND u.active = 1"
+        std_params = []
+        if g.user['role'] != 'admin' or dept:
+            std_query += " AND u.department = ?"
+            std_params.append(dept)
+        if sem_arg:
+            try:
+                std_query += " AND u.semester = ?"
+                std_params.append(int(sem_arg))
+            except ValueError:
+                pass
+        if sec_arg and sec_arg != 'ALL':
+            std_query += " AND (p.section = ? OR p.section IS NULL)"
+            std_params.append(sec_arg)
+
+        total_students_row = conn.execute(std_query, std_params).fetchone()
         total_students = total_students_row['c'] if total_students_row else 0
 
         # Pending assignments needing evaluation
@@ -78,16 +173,16 @@ def overview():
         ).fetchall()
         upcoming_classes = [dict(r) for r in timetable_rows]
 
-        # Overall average attendance across students
+        # Overall average attendance & CGPA across students
         avg_att_row = conn.execute(
-            """SELECT AVG(overall_attendance) as avg_att, AVG(cgpa) as avg_cgpa
+            """SELECT AVG(p.overall_attendance) as avg_att, AVG(p.cgpa) as avg_cgpa
                FROM student_profiles p JOIN users u ON u.id = p.user_id
                WHERE u.role = 'student' AND u.department = ?""",
             (dept,)
         ).fetchone()
 
-        avg_attendance = round(float(avg_att_row['avg_att'] or 85.0), 1) if avg_att_row else 85.0
-        avg_cgpa = round(float(avg_att_row['avg_cgpa'] or 8.2), 2) if avg_att_row else 8.2
+        avg_attendance = round(float(avg_att_row['avg_att'] or 85.0), 1) if avg_att_row and avg_att_row['avg_att'] else 85.0
+        avg_cgpa = round(float(avg_att_row['avg_cgpa'] or 8.2), 2) if avg_att_row and avg_att_row['avg_cgpa'] else 8.2
 
         return jsonify({
             'total_students': total_students,
@@ -164,17 +259,22 @@ def delete_class(class_id):
 
 
 # =========================================================================
-# 3. STUDENT MANAGEMENT
+# 3. STUDENT MANAGEMENT (With Section & USN Matching)
 # =========================================================================
 @bp.get('/students')
 def students():
     department = (request.args.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
     semester_arg = request.args.get('semester')
+    section_arg = request.args.get('section')
+    usn_start = (request.args.get('usn_start') or '').strip().upper()
+    usn_end = (request.args.get('usn_end') or '').strip().upper()
+
     conn = get_db()
     try:
         query = """SELECT u.id, u.name, u.email, u.identifier AS usn, u.department, u.semester,
                           COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as profile_att,
-                          COALESCE(p.section, 'A') as section, COALESCE(p.academic_status, 'Good Standing / Regular') as status,
+                          COALESCE(p.section, 'A') as section, COALESCE(p.dob, '') as dob,
+                          COALESCE(p.academic_status, 'Good Standing / Regular') as status,
                           COALESCE(p.backlogs, 0) as backlogs
                    FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
                    WHERE u.role = 'student' AND u.active = 1"""
@@ -189,6 +289,13 @@ def students():
                 params.append(sem)
             except ValueError:
                 pass
+        if section_arg and section_arg.upper() != 'ALL':
+            query += " AND UPPER(COALESCE(p.section, 'A')) = ?"
+            params.append(section_arg.upper())
+        if usn_start and usn_end:
+            query += " AND UPPER(u.identifier) >= ? AND UPPER(u.identifier) <= ?"
+            params.extend([usn_start, usn_end])
+
         query += " ORDER BY u.identifier, u.name"
         rows = conn.execute(query, params).fetchall()
         out = []
@@ -208,8 +315,8 @@ def student_detail(student_id):
     try:
         row = conn.execute(
             """SELECT u.id, u.name, u.email, u.identifier AS usn, u.department, u.semester,
-                      p.cgpa, p.overall_attendance, p.section, p.academic_status, p.backlogs,
-                      p.phone, p.emergency_contact, p.blood_group, p.dob, p.address
+                      p.cgpa, p.overall_attendance, p.section, p.dob, p.admission_year, p.academic_year,
+                      p.academic_status, p.backlogs, p.phone, p.emergency_contact, p.blood_group, p.address
                FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
                WHERE u.id = ? AND u.role = 'student'""",
             (student_id,)
@@ -246,25 +353,40 @@ def student_detail(student_id):
 
 
 # =========================================================================
-# 4. ATTENDANCE MANAGEMENT
+# 4. ATTENDANCE MANAGEMENT (With Section & Course Filtering)
 # =========================================================================
 @bp.get('/attendance')
 def get_attendance_roll():
     department = (request.args.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
     course_code = (request.args.get('course_code') or '21CS61').strip()
+    sem_arg = request.args.get('semester')
+    sec_arg = request.args.get('section')
+
     conn = get_db()
     try:
-        students_rows = conn.execute(
-            """SELECT u.id, u.name, u.identifier AS usn, u.department, u.semester,
-                      COALESCE(a.attended_hours, 36) as attended_hours,
-                      COALESCE(a.total_hours, 40) as total_hours,
-                      COALESCE(a.od_hours, 2) as od_hours
-               FROM users u
-               LEFT JOIN attendance a ON a.user_id = u.id AND a.course_code = ?
-               WHERE u.role = 'student' AND u.active = 1 AND u.department = ?
-               ORDER BY u.identifier, u.name""",
-            (course_code, department)
-        ).fetchall()
+        query = """SELECT u.id, u.name, u.identifier AS usn, u.department, u.semester,
+                          COALESCE(p.section, 'A') as section,
+                          COALESCE(a.attended_hours, 36) as attended_hours,
+                          COALESCE(a.total_hours, 40) as total_hours,
+                          COALESCE(a.od_hours, 2) as od_hours
+                   FROM users u
+                   LEFT JOIN student_profiles p ON p.user_id = u.id
+                   LEFT JOIN attendance a ON a.user_id = u.id AND a.course_code = ?
+                   WHERE u.role = 'student' AND u.active = 1 AND u.department = ?"""
+        params = [course_code, department]
+
+        if sem_arg:
+            try:
+                query += " AND u.semester = ?"
+                params.append(int(sem_arg))
+            except ValueError:
+                pass
+        if sec_arg and sec_arg.upper() != 'ALL':
+            query += " AND (UPPER(p.section) = ? OR p.section IS NULL)"
+            params.append(sec_arg.upper())
+
+        query += " ORDER BY u.identifier, u.name"
+        students_rows = conn.execute(query, params).fetchall()
 
         logs = [dict(r) for r in conn.execute(
             "SELECT id, course_code, date, status, marked_by, created_at FROM attendance_logs WHERE course_code = ? ORDER BY id DESC LIMIT 20",
@@ -302,7 +424,6 @@ def mark_class_attendance():
             if not sid:
                 continue
 
-            # Update or insert into attendance table
             existing = conn.execute(
                 "SELECT id, attended_hours, total_hours, od_hours FROM attendance WHERE user_id = ? AND course_code = ?",
                 (sid, course_code)
@@ -512,7 +633,6 @@ def update_marks():
     if not student_id:
         return jsonify({'error': 'Student ID is required.'}), 400
 
-    # Determine grade
     if total >= 90:
         grade, status = 'S', 'Pass'
     elif total >= 80:
@@ -568,16 +688,27 @@ def update_marks():
 @bp.get('/analytics')
 def analytics():
     dept = (request.args.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+    sem_arg = request.args.get('semester')
+    sec_arg = request.args.get('section')
+
     conn = get_db()
     try:
-        # Students in department
-        stds = conn.execute(
-            """SELECT u.id, u.name, u.identifier as usn, COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as attendance
-               FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
-               WHERE u.role = 'student' AND u.department = ?""",
-            (dept,)
-        ).fetchall()
+        query = """SELECT u.id, u.name, u.identifier as usn, COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as attendance
+                   FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
+                   WHERE u.role = 'student' AND u.department = ?"""
+        params = [dept]
 
+        if sem_arg:
+            try:
+                query += " AND u.semester = ?"
+                params.append(int(sem_arg))
+            except ValueError:
+                pass
+        if sec_arg and sec_arg.upper() != 'ALL':
+            query += " AND (UPPER(p.section) = ? OR p.section IS NULL)"
+            params.append(sec_arg.upper())
+
+        stds = conn.execute(query, params).fetchall()
         total = len(stds)
         if total == 0:
             return jsonify({
@@ -596,7 +727,6 @@ def analytics():
         between_75_85 = sum(1 for s in stds if 75 <= float(s['attendance']) < 85)
         below_75 = sum(1 for s in stds if float(s['attendance']) < 75)
 
-        # Mark distributions
         mark_rows = conn.execute("SELECT grade, status FROM academic_marks").fetchall()
         grade_dist = {'S': 0, 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0}
         passes = 0
@@ -632,7 +762,7 @@ def analytics():
 @bp.post('/ai-assistant')
 def ai_assistant():
     data = request.get_json() or {}
-    prompt_type = data.get('type', 'quiz') # quiz | lesson_plan | questions | explanation
+    prompt_type = data.get('type', 'quiz')
     topic = (data.get('topic') or 'Software Design Patterns & Architecture').strip()
     course = (data.get('course') or '21CS61 - Software Engineering').strip()
 
@@ -849,7 +979,6 @@ def post_announcement():
             "INSERT INTO announcements (title, department, content, published_date, priority) VALUES (?, ?, ?, ?, ?)",
             (title, department, content, pub_date, priority)
         )
-        # Send instant notification to students
         _notify_students(conn, title=title, content=content, category='announcement', priority=priority)
         conn.commit()
         return jsonify({'message': 'Announcement published to students successfully.'}), 201
@@ -863,17 +992,31 @@ def post_announcement():
 @bp.get('/progress-tracking')
 def progress_tracking():
     dept = (request.args.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+    sem_arg = request.args.get('semester')
+    sec_arg = request.args.get('section')
+
     conn = get_db()
     try:
-        rows = conn.execute(
-            """SELECT u.id, u.name, u.identifier as usn, u.department, u.semester,
-                      COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as attendance,
-                      COALESCE(p.backlogs, 0) as backlogs
-               FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
-               WHERE u.role = 'student' AND u.department = ?
-               ORDER BY u.identifier""",
-            (dept,)
-        ).fetchall()
+        query = """SELECT u.id, u.name, u.identifier as usn, u.department, u.semester,
+                          COALESCE(p.section, 'A') as section,
+                          COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as attendance,
+                          COALESCE(p.backlogs, 0) as backlogs
+                   FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
+                   WHERE u.role = 'student' AND u.department = ?"""
+        params = [dept]
+
+        if sem_arg:
+            try:
+                query += " AND u.semester = ?"
+                params.append(int(sem_arg))
+            except ValueError:
+                pass
+        if sec_arg and sec_arg.upper() != 'ALL':
+            query += " AND (UPPER(p.section) = ? OR p.section IS NULL)"
+            params.append(sec_arg.upper())
+
+        query += " ORDER BY u.identifier"
+        rows = conn.execute(query, params).fetchall()
 
         struggling = []
         for r in rows:
@@ -895,6 +1038,7 @@ def progress_tracking():
                     'id': r['id'],
                     'name': r['name'],
                     'usn': r['usn'],
+                    'section': r['section'],
                     'attendance': att,
                     'cgpa': cgpa,
                     'backlogs': backlogs,
@@ -949,7 +1093,6 @@ def respond_doubt(doubt_id):
         faculty_name = g.user.get('name', 'Faculty')
         resp_date = datetime.datetime.now().strftime('%d %b %Y, %I:%M %p')
 
-        # Insert or update response
         existing = conn.execute("SELECT id FROM doubt_responses WHERE doubt_id = ?", (doubt_id,)).fetchone()
         if existing:
             conn.execute(
@@ -962,7 +1105,6 @@ def respond_doubt(doubt_id):
                 (doubt_id, faculty_name, response_text, resp_date)
             )
 
-        # Update status
         conn.execute("UPDATE faculty_doubts SET status = 'answered' WHERE id = ?", (doubt_id,))
 
         _notify_students(
@@ -1072,7 +1214,7 @@ def apply_leave():
 # =========================================================================
 @bp.get('/reports/export')
 def export_reports():
-    report_type = request.args.get('type', 'attendance') # attendance | marks | assignments
+    report_type = request.args.get('type', 'attendance')
     conn = get_db()
     try:
         dept = (g.user.get('department') or 'Computer Science & Engineering').strip()
@@ -1080,10 +1222,12 @@ def export_reports():
         writer = csv.writer(output)
 
         if report_type == 'attendance':
-            writer.writerow(['USN', 'Student Name', 'Course Code', 'Attended Hours', 'Total Hours', 'OD Hours', 'Attendance %'])
+            writer.writerow(['USN', 'Student Name', 'Section', 'Course Code', 'Attended Hours', 'Total Hours', 'OD Hours', 'Attendance %'])
             rows = conn.execute(
-                """SELECT u.identifier as usn, u.name, a.course_code, a.attended_hours, a.total_hours, a.od_hours
-                   FROM users u JOIN attendance a ON a.user_id = u.id
+                """SELECT u.identifier as usn, u.name, COALESCE(p.section, 'A') as section, a.course_code, a.attended_hours, a.total_hours, a.od_hours
+                   FROM users u
+                   LEFT JOIN student_profiles p ON p.user_id = u.id
+                   JOIN attendance a ON a.user_id = u.id
                    WHERE u.role = 'student' AND u.department = ?
                    ORDER BY u.identifier""",
                 (dept,)
@@ -1092,31 +1236,34 @@ def export_reports():
                 tot = r['total_hours'] or 1
                 att = (r['attended_hours'] or 0) + (r['od_hours'] or 0)
                 pct = round(att / tot * 100, 1)
-                writer.writerow([r['usn'], r['name'], r['course_code'], r['attended_hours'], r['total_hours'], r['od_hours'], pct])
+                writer.writerow([r['usn'], r['name'], r['section'], r['course_code'], r['attended_hours'], r['total_hours'], r['od_hours'], pct])
 
         elif report_type == 'marks':
-            writer.writerow(['USN', 'Student Name', 'Semester', 'Course Code', 'Course Title', 'Internal Marks', 'Lab Marks', 'External Marks', 'Total Marks', 'Grade', 'Status'])
+            writer.writerow(['USN', 'Student Name', 'Section', 'Semester', 'Course Code', 'Course Title', 'Internal Marks', 'Lab Marks', 'External Marks', 'Total Marks', 'Grade', 'Status'])
             rows = conn.execute(
-                """SELECT u.identifier as usn, u.name, m.semester, m.course_code, m.course_title, m.internal_marks, m.lab_marks, m.external_marks, m.total_marks, m.grade, m.status
-                   FROM users u JOIN academic_marks m ON m.user_id = u.id
+                """SELECT u.identifier as usn, u.name, COALESCE(p.section, 'A') as section, m.semester, m.course_code, m.course_title, m.internal_marks, m.lab_marks, m.external_marks, m.total_marks, m.grade, m.status
+                   FROM users u
+                   LEFT JOIN student_profiles p ON p.user_id = u.id
+                   JOIN academic_marks m ON m.user_id = u.id
                    WHERE u.role = 'student' AND u.department = ?
                    ORDER BY u.identifier, m.semester""",
                 (dept,)
             ).fetchall()
             for r in rows:
-                writer.writerow([r['usn'], r['name'], r['semester'], r['course_code'], r['course_title'], r['internal_marks'], r['lab_marks'], r['external_marks'], r['total_marks'], r['grade'], r['status']])
+                writer.writerow([r['usn'], r['name'], r['section'], r['semester'], r['course_code'], r['course_title'], r['internal_marks'], r['lab_marks'], r['external_marks'], r['total_marks'], r['grade'], r['status']])
 
         else: # assignments
-            writer.writerow(['Assignment ID', 'Assignment Title', 'Course', 'Deadline', 'Max Marks', 'Student Name', 'USN', 'Submission Status', 'Scored Marks', 'Evaluated By'])
+            writer.writerow(['Assignment ID', 'Assignment Title', 'Course', 'Deadline', 'Max Marks', 'Student Name', 'USN', 'Section', 'Submission Status', 'Scored Marks', 'Evaluated By'])
             rows = conn.execute(
-                """SELECT a.id, a.title, a.course_code, a.deadline_date, a.max_marks, s.student_name, u.identifier as usn, s.status, s.scored_marks, s.evaluated_by
+                """SELECT a.id, a.title, a.course_code, a.deadline_date, a.max_marks, s.student_name, u.identifier as usn, COALESCE(p.section, 'A') as section, s.status, s.scored_marks, s.evaluated_by
                    FROM assignments a
                    LEFT JOIN assignment_submissions s ON s.assignment_id = a.id
                    LEFT JOIN users u ON u.id = s.student_id
+                   LEFT JOIN student_profiles p ON p.user_id = u.id
                    ORDER BY a.id DESC"""
             ).fetchall()
             for r in rows:
-                writer.writerow([r['id'], r['title'], r['course_code'], r['deadline_date'], r['max_marks'], r['student_name'] or 'N/A', r['usn'] or 'N/A', r['status'] or 'Pending', r['scored_marks'] or '', r['evaluated_by'] or ''])
+                writer.writerow([r['id'], r['title'], r['course_code'], r['deadline_date'], r['max_marks'], r['student_name'] or 'N/A', r['usn'] or 'N/A', r['section'] or 'A', r['status'] or 'Pending', r['scored_marks'] or '', r['evaluated_by'] or ''])
 
         csv_content = output.getvalue()
         return Response(
@@ -1144,14 +1291,22 @@ def get_teacher_profile():
                 'name': g.user['name'],
                 'email': g.user['email'],
                 'department': g.user.get('department', 'Computer Science & Engineering'),
-                'role': g.user['role']
+                'role': g.user['role'],
+                'onboarding_completed': bool(g.user.get('onboarding_completed'))
             },
             'profile': dict(row) if row else {
-                'cabin_room': 'Room 304, CS Block',
+                'cabin_room': 'Room 304, CS Academic Block',
                 'office_hours': '10:00 AM - 12:00 PM (Mon-Fri)',
                 'contact_phone': '+91 98450 12345',
                 'bio': 'Associate Professor specializing in Distributed Systems and Cloud Computing.',
-                'designation': 'Associate Professor'
+                'designation': 'Assistant Professor & Faculty Mentor',
+                'dob': '',
+                'is_class_teacher': False,
+                'class_teacher_dept': 'Computer Science & Engineering',
+                'class_teacher_sem': 6,
+                'class_teacher_section': 'A',
+                'usn_start': '1MS21CS001',
+                'usn_end': '1MS21CS065'
             },
             'assigned_classes': classes
         })
@@ -1162,11 +1317,21 @@ def get_teacher_profile():
 @bp.put('/profile')
 def update_teacher_profile():
     data = request.get_json() or {}
-    cabin_room = (data.get('cabin_room') or 'Room 304, CS Block').strip()
+    cabin_room = (data.get('cabin_room') or 'Room 304, CS Academic Block').strip()
     office_hours = (data.get('office_hours') or '10:00 AM - 12:00 PM (Mon-Fri)').strip()
-    contact_phone = (data.get('contact_phone') or '+91 98450 12345').strip()
+    contact_phone = (data.get('contact_phone') or '').strip()
     bio = (data.get('bio') or '').strip()
     designation = (data.get('designation') or 'Associate Professor').strip()
+    dob = (data.get('dob') or '').strip()
+    is_class_teacher = bool(data.get('is_class_teacher', False))
+    class_teacher_dept = (data.get('class_teacher_dept') or '').strip()
+    try:
+        class_teacher_sem = int(data.get('class_teacher_sem', 6))
+    except (ValueError, TypeError):
+        class_teacher_sem = 6
+    class_teacher_section = (data.get('class_teacher_section') or 'A').strip().upper()
+    usn_start = (data.get('usn_start') or '').strip().upper()
+    usn_end = (data.get('usn_end') or '').strip().upper()
 
     conn = get_db()
     try:
@@ -1175,15 +1340,18 @@ def update_teacher_profile():
         if existing:
             conn.execute(
                 """UPDATE teacher_profiles
-                   SET cabin_room = ?, office_hours = ?, contact_phone = ?, bio = ?, designation = ?, updated_at = CURRENT_TIMESTAMP
+                   SET cabin_room = ?, office_hours = ?, contact_phone = ?, bio = ?, designation = ?,
+                       dob = ?, is_class_teacher = ?, class_teacher_dept = ?, class_teacher_sem = ?,
+                       class_teacher_section = ?, usn_start = ?, usn_end = ?, updated_at = CURRENT_TIMESTAMP
                    WHERE user_id = ?""",
-                (cabin_room, office_hours, contact_phone, bio, designation, user_id)
+                (cabin_room, office_hours, contact_phone, bio, designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, user_id)
             )
         else:
             conn.execute(
-                """INSERT INTO teacher_profiles (user_id, cabin_room, office_hours, contact_phone, bio, designation)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (user_id, cabin_room, office_hours, contact_phone, bio, designation)
+                """INSERT INTO teacher_profiles
+                   (user_id, cabin_room, office_hours, contact_phone, bio, designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (user_id, cabin_room, office_hours, contact_phone, bio, designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end)
             )
         conn.commit()
         return jsonify({'message': 'Profile settings updated successfully.'})

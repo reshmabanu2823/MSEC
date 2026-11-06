@@ -69,8 +69,19 @@ def public_user(conn, row):
         'semester': row['semester'],
         'has_password': bool(row['password_hash']),
     }
-    if row['role'] in ('faculty', 'admin'):
+    onboarded = bool(row.get('onboarding_completed', False))
+    if row['role'] == 'student':
+        prof = conn.execute("SELECT usn, section, dob, academic_year FROM student_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+        if prof and prof['usn'] and prof['section'] and prof['dob']:
+            onboarded = True
+        user['profile'] = dict(prof) if prof else None
+    elif row['role'] in ('faculty', 'admin'):
+        prof = conn.execute("SELECT designation, dob, is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section, usn_start, usn_end, cabin_room FROM teacher_profiles WHERE user_id = ?", (row['id'],)).fetchone()
+        if prof and prof['designation'] and prof['dob']:
+            onboarded = True
+        user['profile'] = dict(prof) if prof else None
         user['classes'] = classes_for(conn, row['id'])
+    user['onboarding_completed'] = onboarded
     return user
 
 

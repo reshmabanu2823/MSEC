@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './teacher-dashboard.css';
+import './onboarding.css';
 import { apiRequest } from '../api';
+import TeacherOnboardingModal from '../components/TeacherOnboardingModal';
 
 const FEATURE_TABS = [
   { id: 'overview', label: 'Overview' },
@@ -22,10 +24,14 @@ const FEATURE_TABS = [
   { id: 'profile', label: 'Profile & Settings' },
 ];
 
-export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal }) {
+export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal, onUpdateUser }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [alertMsg, setAlertMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !user?.onboarding_completed);
+
+  // Class Selection Preference
+  const [selectedClassIndex, setSelectedClassIndex] = useState(0);
 
   // Feature 1: Overview
   const [overviewData, setOverviewData] = useState(null);
@@ -98,36 +104,56 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
     setTimeout(() => setAlertMsg(''), 4500);
   }
 
+  const activeClass = classList[selectedClassIndex] || {
+    department: user?.department || 'Computer Science & Engineering',
+    semester: 6,
+    section: 'A',
+    subject_code: '21CS61',
+    subject_name: 'Software Engineering'
+  };
+
   // Initial load
   useEffect(() => {
-    loadOverview();
     loadClasses();
-    loadStudents();
     loadAssignments();
     loadDoubts();
     loadProfile();
   }, []);
 
+  // When active class changes or class list updates, re-sync data
+  useEffect(() => {
+    if (activeClass) {
+      loadOverview(activeClass);
+      loadStudents(activeClass);
+      loadAttendance(activeClass);
+      if (activeTab === 'analytics') loadAnalytics(activeClass);
+      if (activeTab === 'tracking') loadTracking(activeClass);
+    }
+  }, [selectedClassIndex, classList.length, activeTab]);
+
   // Tab-specific loads
   useEffect(() => {
-    if (activeTab === 'analytics') loadAnalytics();
     if (activeTab === 'materials') loadMaterials();
     if (activeTab === 'timetable') loadTimetable();
     if (activeTab === 'announcements') loadAnnouncements();
-    if (activeTab === 'tracking') loadTracking();
     if (activeTab === 'parents') loadParentMessages();
     if (activeTab === 'leaves') loadLeaves();
   }, [activeTab]);
 
   // Load functions
-  const loadOverview = () => {
-    apiRequest('/teacher/overview').then(setOverviewData).catch(() => {});
+  const loadOverview = (cls = activeClass) => {
+    const q = cls ? `?department=${encodeURIComponent(cls.department)}&semester=${cls.semester}&section=${cls.section}` : '';
+    apiRequest(`/teacher/overview${q}`).then(setOverviewData).catch(() => {});
   };
   const loadClasses = () => {
-    apiRequest('/teacher/classes').then((r) => setClassList(r.classes || [])).catch(() => {});
+    apiRequest('/teacher/classes').then((r) => {
+      const cls = r.classes || [];
+      setClassList(cls);
+    }).catch(() => {});
   };
-  const loadStudents = () => {
-    apiRequest('/teacher/students').then((r) => {
+  const loadStudents = (cls = activeClass) => {
+    const q = cls ? `?department=${encodeURIComponent(cls.department)}&semester=${cls.semester}&section=${cls.section}` : '';
+    apiRequest(`/teacher/students${q}`).then((r) => {
       const list = r.students || [];
       setStudents(list);
       const initAtt = {};
@@ -135,14 +161,21 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       setAttStatus(initAtt);
     }).catch(() => {});
   };
+  const loadAttendance = (cls = activeClass) => {
+    const code = cls?.subject_code || '21CS61';
+    setAttCourse(code);
+    const q = cls ? `?department=${encodeURIComponent(cls.department)}&semester=${cls.semester}&section=${cls.section}&course_code=${encodeURIComponent(code)}` : '';
+    apiRequest(`/teacher/attendance${q}`).catch(() => {});
+  };
   const loadAssignments = () => {
     apiRequest('/teacher/assignments').then((r) => setAssignments(r.assignments || [])).catch(() => {});
   };
   const loadDoubts = () => {
     apiRequest('/teacher/doubts').then((r) => setDoubts(r.doubts || [])).catch(() => {});
   };
-  const loadAnalytics = () => {
-    apiRequest('/teacher/analytics').then(setAnalyticsData).catch(() => {});
+  const loadAnalytics = (cls = activeClass) => {
+    const q = cls ? `?department=${encodeURIComponent(cls.department)}&semester=${cls.semester}&section=${cls.section}` : '';
+    apiRequest(`/teacher/analytics${q}`).then(setAnalyticsData).catch(() => {});
   };
   const loadMaterials = () => {
     apiRequest('/teacher/study-materials').then((r) => setMaterials(r.materials || [])).catch(() => {});
@@ -153,8 +186,9 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
   const loadAnnouncements = () => {
     apiRequest('/teacher/announcements').then((r) => setAnnouncements(r.announcements || [])).catch(() => {});
   };
-  const loadTracking = () => {
-    apiRequest('/teacher/progress-tracking').then((r) => setTrackingList(r.students || [])).catch(() => {});
+  const loadTracking = (cls = activeClass) => {
+    const q = cls ? `?department=${encodeURIComponent(cls.department)}&semester=${cls.semester}&section=${cls.section}` : '';
+    apiRequest(`/teacher/progress-tracking${q}`).then((r) => setTrackingList(r.students || [])).catch(() => {});
   };
   const loadParentMessages = () => {
     apiRequest('/teacher/parent-messages').then((r) => setParentMessages(r.messages || [])).catch(() => {});
@@ -190,14 +224,14 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
         method: 'POST',
         body: JSON.stringify({
           course_code: attCourse,
-          course_title: 'Software Engineering',
+          course_title: activeClass?.subject_name || 'Software Engineering',
           date: attDate,
           records
         })
       });
-      showAlert(`Attendance recorded for ${records.length} students. Updated live in database.`);
-      loadStudents();
-      loadOverview();
+      showAlert(`Attendance recorded for ${records.length} students in Section ${activeClass?.section || 'A'}.`);
+      loadStudents(activeClass);
+      loadOverview(activeClass);
     } catch (err) {
       showAlert(err.message);
     }
@@ -214,7 +248,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       showAlert('Assignment created and published to students.');
       setNewAssign({ title: '', course_code: '21CS61', course_title: 'Software Engineering', deadline_date: '', max_marks: 25, description: '' });
       loadAssignments();
-      loadOverview();
+      loadOverview(activeClass);
     } catch (err) {
       showAlert(err.message);
     }
@@ -244,7 +278,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       });
       showAlert('Evaluation saved and student notified.');
       handleViewSubmissions(selectedAssignId);
-      loadOverview();
+      loadOverview(activeClass);
     } catch (err) {
       showAlert(err.message);
     }
@@ -343,7 +377,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       });
       showAlert('Response sent to student.');
       loadDoubts();
-      loadOverview();
+      loadOverview(activeClass);
     } catch (err) {
       showAlert(err.message);
     }
@@ -406,6 +440,20 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
 
   return (
     <div className="teacher-dash">
+      {/* Onboarding Setup Modal if not completed or opened manually */}
+      {showOnboarding && (
+        <TeacherOnboardingModal
+          user={user}
+          onComplete={(updatedUser) => {
+            setShowOnboarding(false);
+            if (onUpdateUser) onUpdateUser(updatedUser);
+            loadClasses();
+            loadProfile();
+            showAlert('Faculty setup and class allocations updated successfully.');
+          }}
+        />
+      )}
+
       {/* Top Header */}
       <header className="teacher-dash__topbar">
         <div className="teacher-dash__brand">
@@ -433,22 +481,53 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
           <span className="teacher-dash__badge">Authorized Faculty</span>
           <h1 className="teacher-dash__hero-name">{user?.name || 'Faculty Member'}</h1>
           <p className="teacher-dash__hero-meta">
-            {user?.department || 'Computer Science & Engineering'} • {user?.email}
+            {teacherProfile.designation || user?.profile?.designation || 'Faculty Member'} • {user?.department || 'Computer Science & Engineering'} • {user?.email}
           </p>
         </div>
         <div className="teacher-dash__quick-stats">
           <div className="teacher-dash__stat-box">
-            <span className="teacher-dash__stat-label">Students</span>
-            <span className="teacher-dash__stat-val">{overviewData?.total_students || students.length}</span>
+            <span className="teacher-dash__stat-label">Students in Class</span>
+            <span className="teacher-dash__stat-val">{students.length}</span>
           </div>
           <div className="teacher-dash__stat-box">
-            <span className="teacher-dash__stat-label">Classes</span>
-            <span className="teacher-dash__stat-val">{classList.length || overviewData?.assigned_classes_count || 1}</span>
+            <span className="teacher-dash__stat-label">Assigned Classes</span>
+            <span className="teacher-dash__stat-val">{classList.length || 1}</span>
           </div>
           <div className="teacher-dash__stat-box">
             <span className="teacher-dash__stat-label">Pending</span>
             <span className="teacher-dash__stat-val">{overviewData?.pending_tasks?.total_pending ?? doubts.length}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Class Preference Selector Bar (Multi-Class Support) */}
+      <div className="teacher-dash__pref-bar">
+        <div className="teacher-dash__pref-info">
+          <span className="teacher-dash__pref-label">Viewing Class:</span>
+          <select
+            className="teacher-dash__pref-select"
+            value={selectedClassIndex}
+            onChange={(e) => setSelectedClassIndex(parseInt(e.target.value))}
+          >
+            {classList.map((c, i) => (
+              <option key={i} value={i}>
+                {c.department} • Sem {c.semester} • Section {c.section} ({c.subject_code} - {c.subject_name})
+              </option>
+            ))}
+            {classList.length === 0 && (
+              <option value={0}>Default Class: CSE - Sem 6 - Sec A (21CS61)</option>
+            )}
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            type="button"
+            className="teacher-dash__btn-ghost"
+            style={{ fontSize: '13px' }}
+            onClick={() => setShowOnboarding(true)}
+          >
+            Edit Class Allocations & Setup
+          </button>
         </div>
       </div>
 
@@ -472,7 +551,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
         <section className="teacher-dash__module">
-          <h2 className="section-title">Dashboard Overview</h2>
+          <h2 className="section-title">Dashboard Overview: Section {activeClass?.section || 'A'}</h2>
           <div className="teacher-dash__quick-stats" style={{ marginTop: '14px' }}>
             <div className="teacher-dash__stat-box">
               <span className="teacher-dash__stat-label">Average Attendance</span>
@@ -519,8 +598,8 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
             <h2 className="section-title">My Assigned Classes & Sections</h2>
           </div>
           <div className="teacher-dash__list" style={{ marginTop: '12px' }}>
-            {classList.map((c) => (
-              <div key={c.id || `${c.department}-${c.semester}`} className="teacher-dash__item-card">
+            {classList.map((c, idx) => (
+              <div key={c.id || idx} className="teacher-dash__item-card">
                 <div className="teacher-dash__item-top">
                   <strong>{c.subject_code} - {c.subject_name}</strong>
                   <span className="teacher-dash__badge">Section {c.section || 'A'} • Semester {c.semester}</span>
@@ -571,7 +650,12 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       {activeTab === 'students' && (
         <section className="teacher-dash__module">
           <div className="teacher-dash__module-head">
-            <h2 className="section-title">Student Management</h2>
+            <div>
+              <h2 className="section-title">Enrolled Students: Section {activeClass?.section || 'A'}</h2>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
+                {activeClass?.department} • Semester {activeClass?.semester} • Section {activeClass?.section}
+              </p>
+            </div>
             <input
               type="text"
               className="teacher-dash__input"
@@ -587,7 +671,8 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                 <tr>
                   <th>USN</th>
                   <th>Student Name</th>
-                  <th>Department</th>
+                  <th>Section</th>
+                  <th>DOB</th>
                   <th>Sem</th>
                   <th>Attendance</th>
                   <th>CGPA</th>
@@ -600,7 +685,8 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                   <tr key={s.id}>
                     <td><strong>{s.usn}</strong></td>
                     <td>{s.name}</td>
-                    <td>{s.department}</td>
+                    <td>{s.section || 'A'}</td>
+                    <td>{s.dob || 'N/A'}</td>
                     <td>{s.semester}</td>
                     <td>
                       <span className={`teacher-dash__badge ${s.attendance >= 75 ? 'teacher-dash__badge--good' : 'teacher-dash__badge--warn'}`}>
@@ -621,6 +707,13 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                     </td>
                   </tr>
                 ))}
+                {filteredStudents.length === 0 && (
+                  <tr>
+                    <td colSpan={9} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px' }}>
+                      No students found for Section {activeClass?.section}.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -631,7 +724,9 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                 <strong>Student Dossier: {selectedStudent.name} ({selectedStudent.usn})</strong>
                 <button type="button" className="teacher-dash__btn-ghost" onClick={() => setSelectedStudent(null)}>Close</button>
               </div>
-              <p className="teacher-dash__item-desc">Email: {selectedStudent.email} • CGPA: {selectedStudent.cgpa} • Attendance: {selectedStudent.attendance}%</p>
+              <p className="teacher-dash__item-desc">
+                Email: {selectedStudent.email} • Section: {selectedStudent.section || 'A'} • DOB: {selectedStudent.dob || 'N/A'} • CGPA: {selectedStudent.cgpa} • Attendance: {selectedStudent.attendance}%
+              </p>
             </div>
           )}
         </section>
@@ -641,7 +736,12 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       {activeTab === 'attendance' && (
         <section className="teacher-dash__module">
           <div className="teacher-dash__module-head">
-            <h2 className="section-title">Mark Daily Attendance</h2>
+            <div>
+              <h2 className="section-title">Mark Daily Attendance</h2>
+              <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>
+                {activeClass?.department} • Section {activeClass?.section || 'A'} • Course: {activeClass?.subject_code}
+              </p>
+            </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <input
                 type="date"
@@ -649,14 +749,9 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                 value={attDate}
                 onChange={(e) => setAttDate(e.target.value)}
               />
-              <select
-                className="teacher-dash__select"
-                value={attCourse}
-                onChange={(e) => setAttCourse(e.target.value)}
-              >
-                <option value="21CS61">21CS61 - Software Engineering</option>
-                <option value="21CS62">21CS62 - Cloud Computing</option>
-              </select>
+              <span className="teacher-dash__badge" style={{ alignSelf: 'center' }}>
+                {activeClass?.subject_code} - Section {activeClass?.section}
+              </span>
             </div>
           </div>
 
@@ -666,6 +761,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                 <tr>
                   <th>USN</th>
                   <th>Student Name</th>
+                  <th>Section</th>
                   <th>Attendance Mark</th>
                 </tr>
               </thead>
@@ -674,6 +770,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
                   <tr key={s.id}>
                     <td><strong>{s.usn}</strong></td>
                     <td>{s.name}</td>
+                    <td>{s.section || 'A'}</td>
                     <td>
                       <div className="teacher-dash__att-group">
                         <button
@@ -711,7 +808,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
             style={{ marginTop: '16px' }}
             onClick={handleBatchAttendance}
           >
-            Submit Class Attendance (Syncs Live with Database)
+            Submit Class Attendance (Syncs Live for Section {activeClass?.section || 'A'})
           </button>
         </section>
       )}
@@ -868,7 +965,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
             >
               <option value="">Select Student...</option>
               {students.map((s) => (
-                <option key={s.id} value={s.id}>{s.name} ({s.usn})</option>
+                <option key={s.id} value={s.id}>{s.name} ({s.usn}) - Sec {s.section || 'A'}</option>
               ))}
             </select>
             <input
@@ -907,7 +1004,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
       {/* TAB 7: PERFORMANCE ANALYTICS */}
       {activeTab === 'analytics' && (
         <section className="teacher-dash__module">
-          <h2 className="section-title">Academic Performance Analytics</h2>
+          <h2 className="section-title">Academic Performance Analytics: Section {activeClass?.section || 'A'}</h2>
           <div className="teacher-dash__quick-stats" style={{ marginTop: '14px' }}>
             <div className="teacher-dash__stat-box">
               <span className="teacher-dash__stat-label">Pass Percentage</span>
@@ -1218,14 +1315,14 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
         <section className="teacher-dash__module">
           <h2 className="section-title">Student Progress Tracking & Academic At-Risk Monitor</h2>
           <p className="teacher-dash__item-desc" style={{ marginTop: '4px' }}>
-            System automatically scans attendance records (&lt;75%) and CGPA (&lt;7.0) to flag students needing academic intervention.
+            Monitoring Section {activeClass?.section || 'A'}: Auto-scans attendance (&lt;75%) and CGPA (&lt;7.0) to flag students needing academic counseling.
           </p>
 
           <div className="teacher-dash__list" style={{ marginTop: '14px' }}>
             {trackingList.map((st) => (
               <div key={st.id} className="teacher-dash__item-card">
                 <div className="teacher-dash__item-top">
-                  <strong>{st.name} ({st.usn})</strong>
+                  <strong>{st.name} ({st.usn}) • Sec {st.section || 'A'}</strong>
                   <span className={`teacher-dash__progress-badge teacher-dash__progress-badge--${st.risk_level.toLowerCase()}`}>
                     {st.risk_level} Risk
                   </span>
@@ -1244,7 +1341,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
               </div>
             ))}
             {trackingList.length === 0 && (
-              <p style={{ color: 'var(--muted)', fontSize: '14px' }}>All students are in good academic standing (attendance &gt; 75% and CGPA &gt; 7.0).</p>
+              <p style={{ color: 'var(--muted)', fontSize: '14px' }}>All students in Section {activeClass?.section || 'A'} are in good academic standing.</p>
             )}
           </div>
         </section>
@@ -1303,7 +1400,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
         <section className="teacher-dash__module">
           <h2 className="section-title">Parent Communication & Progress Reporting</h2>
           <p className="teacher-dash__item-desc" style={{ marginTop: '4px' }}>
-            Directly dispatch official attendance updates and academic feedback to parents.
+            Directly dispatch official attendance updates and academic feedback to parents of Section {activeClass?.section || 'A'}.
           </p>
 
           <form onSubmit={handleSendParentMessage} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
@@ -1315,7 +1412,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
               >
                 <option value="">Select Ward / Student...</option>
                 {students.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.usn})</option>
+                  <option key={s.id} value={s.id}>{s.name} ({s.usn}) - Sec {s.section || 'A'}</option>
                 ))}
               </select>
               <select
@@ -1480,7 +1577,7 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal 
           <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '14px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Designation</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Academic Role / Designation</label>
                 <input
                   type="text"
                   className="teacher-dash__input"

@@ -7,6 +7,7 @@ import AuthScreen from './screens/AuthScreen';
 import PortalGateway from './screens/PortalGateway';
 import TeacherDashboardScreen from './screens/TeacherDashboardScreen';
 import LibraryPortalWrapper from './screens/LibraryPortalWrapper';
+import StudentOnboardingModal from './components/StudentOnboardingModal';
 import SCREEN_COMPONENTS from './screens/index.js';
 import { SCREENS, TABS, tabFor, pushScreen, popScreen } from './nav';
 import { clearAuth, getToken, getUser, setUser, UNAUTHORIZED_EVENT } from './api';
@@ -141,6 +142,10 @@ export default function App() {
         user={currentUser}
         onLogout={handleLogout}
         onSwitchPortal={handleSwitchPortal}
+        onUpdateUser={(updatedUser) => {
+          setUser(updatedUser);
+          setCurrentUser(updatedUser);
+        }}
       />
     );
   }
@@ -217,6 +222,15 @@ export default function App() {
 
   return (
     <>
+      {currentUser?.role === 'student' && !currentUser?.onboarding_completed && (
+        <StudentOnboardingModal
+          user={currentUser}
+          onComplete={(updatedUser) => {
+            setUser(updatedUser);
+            setCurrentUser(updatedUser);
+          }}
+        />
+      )}
       <TopBar key={`h-${activeId}`} {...headerProps} />
       <main key={activeId} className={`app-main app-main--${activeId} screen-anim screen-anim--${motion}`}>
         {!online && OFFLINE_ENDPOINTS[activeId] && !showSaved
