@@ -38,10 +38,41 @@ def roster_user(conn, email):
 
 def classes_for(conn, user_id):
     rows = conn.execute(
-        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester", (user_id,)
+        "SELECT id, department, semester, COALESCE(section, 'A') AS section, COALESCE(subject_code, '21CS61') AS subject_code, COALESCE(subject_name, 'Software Engineering') AS subject_name FROM teacher_classes WHERE user_id = ? ORDER BY department, semester, section", (user_id,)
     ).fetchall()
-    if rows:
-        return [dict(r) for r in rows]
+    classes_list = [dict(r) for r in rows] if rows else []
+
+    # Check if teacher is designated as Class Teacher in teacher_profiles
+    tprof = conn.execute(
+        "SELECT is_class_teacher, class_teacher_dept, class_teacher_sem, class_teacher_section FROM teacher_profiles WHERE user_id = ?",
+        (user_id,)
+    ).fetchone()
+
+    if tprof and tprof['is_class_teacher'] and tprof['class_teacher_dept'] and tprof['class_teacher_sem']:
+        ct_dept = str(tprof['class_teacher_dept']).strip()
+        ct_sem = int(tprof['class_teacher_sem'])
+        ct_sec = str(tprof['class_teacher_section'] or 'A').strip().upper()
+
+        has_ct = any(
+            c.get('department') == ct_dept and int(c.get('semester', 0)) == ct_sem and str(c.get('section', 'A')).upper() == ct_sec
+            for c in classes_list
+        )
+        if not has_ct:
+            conn.execute(
+                "INSERT INTO teacher_classes (user_id, department, semester, section, subject_code, subject_name) VALUES (?, ?, ?, ?, '21CS71', 'Class Teacher & Core Subject')",
+                (user_id, ct_dept, ct_sem, ct_sec)
+            )
+            conn.commit()
+            classes_list.append({
+                'department': ct_dept,
+                'semester': ct_sem,
+                'section': ct_sec,
+                'subject_code': '21CS71',
+                'subject_name': 'Class Teacher & Core Subject'
+            })
+
+    if classes_list:
+        return classes_list
     u = conn.execute("SELECT department FROM users WHERE id = ?", (user_id,)).fetchone()
     dept = (u['department'] if u and u['department'] else 'Computer Science & Engineering').strip()
     sem_rows = conn.execute("SELECT DISTINCT semester FROM users WHERE role = 'student' AND department = ? ORDER BY semester", (dept,)).fetchall()

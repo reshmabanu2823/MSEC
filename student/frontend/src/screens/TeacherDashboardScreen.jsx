@@ -42,6 +42,51 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal,
 
   // Feature 3: Student Management
   const [students, setStudents] = useState([]);
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [enrollForm, setEnrollForm] = useState({
+    name: '',
+    usn: '',
+    department: 'Computer Science & Engineering',
+    semester: 6,
+    section: 'A',
+    email: '',
+    dob: '2003-05-14',
+    phone: '',
+  });
+
+  const handleOpenEnrollModal = () => {
+    setEnrollForm({
+      name: '',
+      usn: '',
+      department: activeClass?.department || user?.department || 'Computer Science & Engineering',
+      semester: activeClass?.semester || 6,
+      section: activeClass?.section || 'A',
+      email: '',
+      dob: '2003-05-14',
+      phone: '',
+    });
+    setShowEnrollModal(true);
+  };
+
+  const handleEnrollStudent = async (e) => {
+    e.preventDefault();
+    if (!enrollForm.name.trim() || !enrollForm.usn.trim()) {
+      showAlert('Student name and USN are required.');
+      return;
+    }
+    try {
+      const res = await apiRequest('/teacher/students/enroll', {
+        method: 'POST',
+        body: JSON.stringify(enrollForm),
+      });
+      showAlert(res.message || 'Student successfully enrolled into class.');
+      setShowEnrollModal(false);
+      loadStudents(activeClass);
+      loadOverview(activeClass);
+    } catch (err) {
+      showAlert(err.message || 'Failed to enroll student.');
+    }
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
 
@@ -658,14 +703,38 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal,
                 {activeClass?.department} • Semester {activeClass?.semester} • Section {activeClass?.section}
               </p>
             </div>
-            <input
-              type="text"
-              className="teacher-dash__input"
-              placeholder="Search by name or USN..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ maxWidth: '280px' }}
-            />
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="text"
+                className="teacher-dash__input"
+                placeholder="Search by name or USN..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ maxWidth: '240px' }}
+              />
+              <button
+                type="button"
+                className="teacher-dash__btn"
+                style={{
+                  background: 'var(--primary)',
+                  color: '#ffffff',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  border: 'none',
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 2px 8px rgba(109, 40, 217, 0.3)'
+                }}
+                onClick={handleOpenEnrollModal}
+              >
+                + Enroll Student to Class
+              </button>
+            </div>
           </div>
           <div className="teacher-dash__table-wrap" style={{ marginTop: '12px' }}>
             <table className="teacher-dash__table">
@@ -1633,6 +1702,152 @@ export default function TeacherDashboardScreen({ user, onLogout, onSwitchPortal,
           </form>
         </section>
       )}
-    </div>
+    
+      {/* Student Enrollment Modal */}
+      {showEnrollModal && (
+        <div className="onboarding-overlay">
+          <div className="onboarding-modal" style={{ maxWidth: '540px' }}>
+            <button
+              type="button"
+              className="onboarding-modal__close"
+              onClick={() => setShowEnrollModal(false)}
+            >
+              ×
+            </button>
+            <div className="onboarding-modal__head">
+              <span className="onboarding-modal__badge">Student Class Enrollment</span>
+              <h2 className="onboarding-modal__title">Enroll Student into Class</h2>
+              <p className="onboarding-modal__sub">
+                Assign a student with legit academic credentials (USN, Section, Department, Semester) to this class. When the student logs in with these details, their account will be directly bound to this enrolled roster.
+              </p>
+            </div>
+
+            <form onSubmit={handleEnrollStudent} className="onboarding-form">
+              <div className="onboarding-row">
+                <div className="onboarding-field">
+                  <label>Student Full Name *</label>
+                  <input
+                    type="text"
+                    className="onboarding-input"
+                    placeholder="e.g. Reshma Banu"
+                    value={enrollForm.name}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="onboarding-field">
+                  <label>University Serial Number (USN) *</label>
+                  <input
+                    type="text"
+                    className="onboarding-input"
+                    placeholder="e.g. 1ME23CS108 / 1MS21CS084"
+                    value={enrollForm.usn}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, usn: e.target.value.toUpperCase() })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="onboarding-field">
+                <label>Department / Branch</label>
+                <select
+                  className="onboarding-select"
+                  value={enrollForm.department}
+                  onChange={(e) => setEnrollForm({ ...enrollForm, department: e.target.value })}
+                >
+                  {[
+                    'Computer Science & Engineering',
+                    'Information Science & Engineering',
+                    'Artificial Intelligence & Data Science',
+                    'Electronics & Communication Engineering',
+                    'Mechanical Engineering',
+                    'Civil Engineering',
+                  ].map((dept) => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="onboarding-row--3">
+                <div className="onboarding-field">
+                  <label>Semester</label>
+                  <select
+                    className="onboarding-select"
+                    value={enrollForm.semester}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, semester: parseInt(e.target.value) })}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                      <option key={s} value={s}>Semester {s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="onboarding-field">
+                  <label>Class Section</label>
+                  <select
+                    className="onboarding-select"
+                    value={enrollForm.section}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, section: e.target.value.toUpperCase() })}
+                  >
+                    {['A', 'B', 'C', 'D'].map((sec) => (
+                      <option key={sec} value={sec}>Section {sec}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="onboarding-field">
+                  <label>Date of Birth (DOB)</label>
+                  <input
+                    type="date"
+                    className="onboarding-input"
+                    value={enrollForm.dob}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, dob: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="onboarding-row">
+                <div className="onboarding-field">
+                  <label>Student Email (Optional)</label>
+                  <input
+                    type="email"
+                    className="onboarding-input"
+                    placeholder="student@college.edu or gmail"
+                    value={enrollForm.email}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, email: e.target.value })}
+                  />
+                </div>
+                <div className="onboarding-field">
+                  <label>Contact Phone (Optional)</label>
+                  <input
+                    type="tel"
+                    className="onboarding-input"
+                    placeholder="+91 98765 43210"
+                    value={enrollForm.phone}
+                    onChange={(e) => setEnrollForm({ ...enrollForm, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="onboarding-btn--ghost"
+                  onClick={() => setShowEnrollModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="onboarding-btn--primary"
+                >
+                  Complete Enrollment & Add to Class
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+</div>
   );
 }

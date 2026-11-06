@@ -105,7 +105,25 @@ export default function TeacherOnboardingModal({ user, onComplete, onCancel, onC
           cabin_room: cabinRoom.trim(),
           contact_phone: contactPhone.trim(),
           office_hours: officeHours.trim(),
-          assigned_classes: assignedClasses,
+          assigned_classes: (() => {
+            const list = [...assignedClasses];
+            if (isClassTeacher) {
+              const semInt = parseInt(ctSem);
+              const exists = list.some(
+                (c) => c.department === ctDept && parseInt(c.semester) === semInt && c.section === ctSection
+              );
+              if (!exists) {
+                list.unshift({
+                  department: ctDept,
+                  semester: semInt,
+                  section: ctSection,
+                  subject_code: '21CS71',
+                  subject_name: 'Class Teacher & Academic In-Charge'
+                });
+              }
+            }
+            return list;
+          })(),
         }),
       });
       if (onComplete && res?.user) {
@@ -309,11 +327,11 @@ export default function TeacherOnboardingModal({ user, onComplete, onCancel, onC
             </div>
 
             <div style={{ borderTop: '1px dashed var(--line)', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div className="onboarding-row--3">
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.6fr 1fr 1fr', gap: '8px' }}>
                 <input
                   type="text"
                   className="onboarding-input"
-                  placeholder="Subject Code (21CS62)"
+                  placeholder="Code (21CS62)"
                   value={addClassCode}
                   onChange={(e) => setAddClassCode(e.target.value)}
                 />
@@ -324,6 +342,15 @@ export default function TeacherOnboardingModal({ user, onComplete, onCancel, onC
                   value={addClassName}
                   onChange={(e) => setAddClassName(e.target.value)}
                 />
+                <select
+                  className="onboarding-select"
+                  value={addClassSem}
+                  onChange={(e) => setAddClassSem(parseInt(e.target.value))}
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                    <option key={s} value={s}>Sem {s}</option>
+                  ))}
+                </select>
                 <select
                   className="onboarding-select"
                   value={addClassSec}

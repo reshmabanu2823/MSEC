@@ -271,7 +271,7 @@ def students():
 
     conn = get_db()
     try:
-        query = """SELECT u.id, u.name, u.email, u.identifier AS usn, u.department, u.semester,
+        query = """SELECT u.id, u.name, u.email, COALESCE(p.usn, u.identifier) AS usn, u.department, u.semester,
                           COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) as profile_att,
                           COALESCE(p.section, 'A') as section, COALESCE(p.dob, '') as dob,
                           COALESCE(p.academic_status, 'Good Standing / Regular') as status,
@@ -280,23 +280,23 @@ def students():
                    WHERE u.role = 'student' AND u.active = 1"""
         params = []
         if department:
-            query += " AND u.department = ?"
+            query += " AND LOWER(TRIM(u.department)) = LOWER(TRIM(?))"
             params.append(department)
         if semester_arg:
             try:
                 sem = int(semester_arg)
-                query += " AND u.semester = ?"
-                params.append(sem)
+                query += " AND (u.semester = ? OR p.semester = ?)"
+                params.extend([sem, sem])
             except ValueError:
                 pass
         if section_arg and section_arg.upper() != 'ALL':
-            query += " AND UPPER(COALESCE(p.section, 'A')) = ?"
-            params.append(section_arg.upper())
+            query += " AND UPPER(TRIM(COALESCE(p.section, 'A'))) = ?"
+            params.append(section_arg.strip().upper())
         if usn_start and usn_end:
-            query += " AND UPPER(u.identifier) >= ? AND UPPER(u.identifier) <= ?"
+            query += " AND UPPER(COALESCE(p.usn, u.identifier)) >= ? AND UPPER(COALESCE(p.usn, u.identifier)) <= ?"
             params.extend([usn_start, usn_end])
 
-        query += " ORDER BY u.identifier, u.name"
+        query += " ORDER BY COALESCE(p.usn, u.identifier), u.name"
         rows = conn.execute(query, params).fetchall()
         out = []
         for r in rows:
@@ -305,6 +305,101 @@ def students():
             item['attendance'] = calculated_att if calculated_att > 0 else float(r['profile_att'] or 85.0)
             out.append(item)
         return jsonify({'department': department, 'students': out})
+    finally:
+        conn.close()
+
+
+@bp.post('/students/enroll')
+def enroll_student():
+    data = request.get_json() or {}
+    name = (data.get('name') or '').strip()
+    usn = (data.get('usn') or '').strip().upper()
+    department = (data.get('department') or g.user.get('department') or 'Computer Science & Engineering').strip()
+    try:
+        semester = int(data.get('semester', 6))
+    except (ValueError, TypeError):
+        semester = 6
+    section = (data.get('section') or 'A').strip().upper()
+    email = (data.get('email') or '').strip().lower()
+    dob = (data.get('dob') or '2003-05-14').strip()
+    phone = (data.get('phone') or '').strip()
+    academic_year = (data.get('academic_year') or f'{(semester+1)//2}th Year (BE)').strip()
+
+    if not name or not usn:
+        return jsonify({'error': 'Student Name and USN are required.'}), 400
+
+    if not email:
+        email = f"{usn.lower()}@college.edu"
+
+    conn = get_db()
+    try:
+        existing_user = conn.execute(
+            "SELECT id, email, identifier FROM users WHERE identifier = ? OR email = ?",
+            (usn, email)
+        ).fetchone()
+
+        from werkzeug.security import generate_password_hash
+        default_pwd = generate_password_hash("Student@123")
+
+        if existing_user:
+            student_uid = existing_user['id']
+            conn.execute(
+                """UPDATE users
+                   SET name = ?, identifier = ?, department = ?, semester = ?, role = 'student'
+                   WHERE id = ?""",
+                (name, usn, department, semester, student_uid)
+            )
+        else:
+            cur = conn.execute(
+                """INSERT INTO users (name, email, identifier, role, department, semester, password_hash)
+                   VALUES (?, ?, ?, 'student', ?, ?, ?) RETURNING id""",
+                (name, email, usn, department, semester, default_pwd)
+            )
+            student_uid = None
+            if hasattr(cur, 'fetchone'):
+                try:
+                    new_row = cur.fetchone()
+                    student_uid = new_row['id'] if new_row else None
+                except Exception:
+                    pass
+            if not student_uid:
+                fresh_std = conn.execute("SELECT id FROM users WHERE identifier = ?", (usn,)).fetchone()
+                student_uid = fresh_std['id'] if fresh_std else None
+
+        prof_exist = conn.execute("SELECT id FROM student_profiles WHERE user_id = ? OR usn = ?", (student_uid, usn)).fetchone()
+        adm_year = datetime.date.today().year - ((semester-1)//2)
+        if prof_exist:
+            conn.execute(
+                """UPDATE student_profiles
+                   SET user_id = ?, usn = ?, name = ?, department = ?, semester = ?, section = ?, dob = ?,
+                       phone = COALESCE(NULLIF(?, ''), phone), academic_year = ?
+                   WHERE id = ?""",
+                (student_uid, usn, name, department, semester, section, dob, phone, academic_year, prof_exist['id'])
+            )
+        else:
+            conn.execute(
+                """INSERT INTO student_profiles
+                   (user_id, usn, name, department, college_name, semester, section, dob, admission_year, academic_year, phone, email, cgpa, overall_attendance, academic_status)
+                   VALUES (?, ?, ?, ?, 'MS Engineering College', ?, ?, ?, ?, ?, ?, ?, 8.5, 85.0, 'Good Standing / Regular')""",
+                (student_uid, usn, name, department, semester, section, dob, adm_year, academic_year, phone, email)
+            )
+
+        conn.commit()
+
+        row = conn.execute(
+            """SELECT u.id, u.name, u.email, COALESCE(p.usn, u.identifier) AS usn, u.department, u.semester,
+                      COALESCE(p.section, 'A') as section, COALESCE(p.dob, '') as dob,
+                      COALESCE(p.cgpa, 8.5) as cgpa, COALESCE(p.overall_attendance, 85.0) AS attendance,
+                      COALESCE(p.academic_status, 'Good Standing / Regular') AS status
+               FROM users u LEFT JOIN student_profiles p ON p.user_id = u.id
+               WHERE u.id = ?""",
+            (student_uid,)
+        ).fetchone()
+
+        return jsonify({
+            'message': f'Student {name} ({usn}) successfully enrolled into {department} - Sem {semester} - Section {section}.',
+            'student': dict(row) if row else {'id': student_uid, 'name': name, 'usn': usn, 'section': section, 'semester': semester}
+        }), 201
     finally:
         conn.close()
 
