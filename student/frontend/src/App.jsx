@@ -16,8 +16,12 @@ import { authApi, GOOGLE_ERRORS, saveSession } from './auth-api';
 import { useAuthReturn } from './useAuthReturn';
 import { useOnline } from './useOnline';
 import { NotFoundScreen, OfflineScreen, OFFLINE_ENDPOINTS } from './screens/MobileStates';
+
+// Screens that load their own data with no saved copy: offline shows the offline state instead of broken content.
+const LIVE_ONLY_SCREENS = new Set(['profile', 'notifications', 'doubts', 'faculty_mentor', 'fees', 'admin']);
 import './screens/mobile-reference.css';
 import './theme/responsive.css';
+import './theme/screens.css';
 
 export default function App() {
   // portalMode: null (Gateway) | 'student' | 'teacher' | 'library'
@@ -254,7 +258,7 @@ export default function App() {
       )}
       <TopBar key={`h-${activeId}`} {...headerProps} />
       <main key={activeId} className={`app-main app-main--${activeId} screen-anim screen-anim--${motion}`}>
-        {!online && OFFLINE_ENDPOINTS[activeId] && !showSaved
+        {!online && (OFFLINE_ENDPOINTS[activeId] || LIVE_ONLY_SCREENS.has(activeId)) && !showSaved
           ? <OfflineScreen key={activeId} screenId={activeId} onShowSaved={(endpoint) => { setSavedEndpoint(endpoint || ''); setShowSaved(true); }} />
           : renderActiveView()}
       </main>

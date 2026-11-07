@@ -13,7 +13,7 @@ describe('ErrorCard', () => {
     const onRetry = vi.fn();
     render(<ErrorCard error={new NetworkError()} onRetry={onRetry} />);
     expect(screen.getByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
@@ -30,7 +30,7 @@ describe('ErrorCard', () => {
 
   it('omits the Retry button when onRetry is not given', () => {
     render(<ErrorCard error={new NetworkError()} />);
-    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 });
 
@@ -44,7 +44,7 @@ describe('DataCards', () => {
   it('renders one .card per row', () => {
     const { container } = render(<DataCards rows={rows} title={(r) => r.name} />);
     expect(container.querySelectorAll('.card')).toHaveLength(3);
-    expect(screen.getByText('Databases')).toHaveClass('truncate');
+    expect(screen.getByText('Databases')).toHaveClass('data-card-title');
   });
 
   it('renders value next to the title and meta as label/value pairs, skipping empty values', () => {

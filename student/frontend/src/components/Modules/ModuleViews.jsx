@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest, apiUrl, openExternal } from '../../api';
 import PasswordSection from '../PasswordSection';
+import ProfilePhoto from '../ProfilePhoto';
 
 // ==========================================================
 // 9. STUDENT PROFILE AND DIGITAL ID MODULE
@@ -135,35 +136,35 @@ export function StudentProfileView({ userRole }) {
       <div className="panel-card" style={{ marginBottom: '16px' }}>
         <div className="panel-card-body" style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="id-photo-box" style={{ width: '90px', height: '100px' }}>
-            <img src={apiUrl(profile.photo_url || '/uploads/profiles/default_student.png')} alt={profile.name} />
+            <ProfilePhoto url={profile.photo_url} name={profile.name} />
           </div>
 
           <div style={{ flex: 1, minWidth: '240px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>{profile.name}</h2>
+              <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--ink)' }}>{profile.name}</h2>
               <span className="status-pill status-neutral">USN: {profile.usn}</span>
               <span className="status-pill status-success">{profile.academic_status || 'Good Standing'}</span>
             </div>
-            <div style={{ fontSize: '13px', color: '#475569', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>
               {profile.department} | {profile.college_name || 'Apex Institute of Engineering & Technology'}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
               {profile.degree || 'Bachelor of Engineering (B.E.)'} - Semester {profile.semester} (Section {profile.section}) | Batch: {profile.admission_year || 2021} - {(profile.admission_year || 2021) + 4}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid #e2e8f0', paddingLeft: '16px' }}>
+          <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid var(--line)', paddingLeft: '16px' }}>
             <div>
               <div className="stat-label">Current CGPA</div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#1e3a8a' }}>{profile.cgpa}</div>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--primary)' }}>{profile.cgpa}</div>
             </div>
             <div>
               <div className="stat-label">Attendance</div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#15803d' }}>{profile.overall_attendance}%</div>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--good-ink)' }}>{profile.overall_attendance}%</div>
             </div>
             <div>
               <div className="stat-label">Earned Credits</div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: '#0f172a' }}>{profile.credits_earned || 128}</div>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--ink)' }}>{profile.credits_earned || 128}</div>
             </div>
           </div>
         </div>
@@ -176,8 +177,8 @@ export function StudentProfileView({ userRole }) {
             type="button"
             className="btn-secondary"
             style={{
-              backgroundColor: activeTab === 'profile' ? '#1e3a8a' : '#ffffff',
-              color: activeTab === 'profile' ? '#ffffff' : '#1e293b'
+              backgroundColor: activeTab === 'profile' ? 'var(--primary)' : '#ffffff',
+              color: activeTab === 'profile' ? '#ffffff' : 'var(--ink)'
             }}
             onClick={() => setActiveTab('profile')}
           >
@@ -187,8 +188,8 @@ export function StudentProfileView({ userRole }) {
             type="button"
             className="btn-secondary"
             style={{
-              backgroundColor: activeTab === 'digital_id' ? '#1e3a8a' : '#ffffff',
-              color: activeTab === 'digital_id' ? '#ffffff' : '#1e293b'
+              backgroundColor: activeTab === 'digital_id' ? 'var(--primary)' : '#ffffff',
+              color: activeTab === 'digital_id' ? '#ffffff' : 'var(--ink)'
             }}
             onClick={() => setActiveTab('digital_id')}
           >
@@ -210,47 +211,47 @@ export function StudentProfileView({ userRole }) {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
                 <div>
                   <label className="stat-label">University Seat Number (USN)</label>
-                  <div style={{ fontWeight: 600, color: '#0f172a' }}>{profile.usn}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{profile.usn}</div>
                 </div>
                 <div>
                   <label className="stat-label">Student Full Name</label>
-                  <div style={{ fontWeight: 600, color: '#0f172a' }}>{profile.name}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{profile.name}</div>
                 </div>
                 <div>
                   <label className="stat-label">College / Institution</label>
-                  <div style={{ color: '#334155' }}>{profile.college_name || 'Apex Institute of Engineering & Technology'}</div>
+                  <div style={{ color: 'var(--ink)' }}>{profile.college_name || 'Apex Institute of Engineering & Technology'}</div>
                 </div>
                 <div>
                   <label className="stat-label">Department / Branch</label>
-                  <div style={{ color: '#334155' }}>{profile.department}</div>
+                  <div style={{ color: 'var(--ink)' }}>{profile.department}</div>
                 </div>
                 <div>
                   <label className="stat-label">Academic Program</label>
-                  <div style={{ color: '#334155' }}>{profile.degree || 'B.E. Computer Science'}</div>
+                  <div style={{ color: 'var(--ink)' }}>{profile.degree || 'B.E. Computer Science'}</div>
                 </div>
                 <div>
                   <label className="stat-label">Current Semester & Section</label>
-                  <div style={{ color: '#334155' }}>Semester {profile.semester} - Section {profile.section}</div>
+                  <div style={{ color: 'var(--ink)' }}>Semester {profile.semester} - Section {profile.section}</div>
                 </div>
                 <div>
                   <label className="stat-label">Admission Year</label>
-                  <div style={{ color: '#334155' }}>{profile.admission_year || 2021}</div>
+                  <div style={{ color: 'var(--ink)' }}>{profile.admission_year || 2021}</div>
                 </div>
                 <div>
                   <label className="stat-label">ID Expiry / Valid Thru</label>
-                  <div style={{ color: '#334155' }}>{profile.valid_thru || 'June 2027'}</div>
+                  <div style={{ color: 'var(--ink)' }}>{profile.valid_thru || 'June 2027'}</div>
                 </div>
                 <div>
                   <label className="stat-label">Active Backlogs</label>
-                  <div style={{ color: '#15803d', fontWeight: 600 }}>{profile.backlogs || 0} Backlogs</div>
+                  <div style={{ color: 'var(--good-ink)', fontWeight: 600 }}>{profile.backlogs || 0} Backlogs</div>
                 </div>
                 <div>
                   <label className="stat-label">Standing Status</label>
-                  <div style={{ color: '#15803d', fontWeight: 600 }}>{profile.academic_status || 'Good Standing'}</div>
+                  <div style={{ color: 'var(--good-ink)', fontWeight: 600 }}>{profile.academic_status || 'Good Standing'}</div>
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+              <div style={{ borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
                 <label className="stat-label" style={{ marginBottom: '6px' }}>Update Profile Photograph</label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
@@ -262,7 +263,7 @@ export function StudentProfileView({ userRole }) {
                     disabled={loading}
                   />
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
                   Supported formats: PNG, JPG, JPEG, WEBP. Photo is automatically updated on your Digital ID.
                 </div>
               </div>
@@ -273,7 +274,7 @@ export function StudentProfileView({ userRole }) {
           <div className="panel-card">
             <div className="panel-card-header">
               <h3 className="panel-card-title">Permitted Personal & Contact Details</h3>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>Editable by Student</span>
+              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Editable by Student</span>
             </div>
             <div className="panel-card-body">
               <form onSubmit={handleSaveProfile}>
@@ -334,8 +335,8 @@ export function StudentProfileView({ userRole }) {
                 </div>
 
                 {userRole === 'admin' && (
-                  <div style={{ background: '#eff6ff', padding: '10px', borderRadius: '4px', marginBottom: '14px', border: '1px solid #bfdbfe' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#1e3a8a', marginBottom: '6px' }}>
+                  <div style={{ background: 'var(--primary-tint)', padding: '10px', borderRadius: '4px', marginBottom: '14px', border: '1px solid var(--primary-tint)' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--primary)', marginBottom: '6px' }}>
                       ADMINISTRATOR MASTER RECORD OVERRIDE:
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -373,11 +374,11 @@ export function StudentProfileView({ userRole }) {
       {/* TAB 2: DIGITAL STUDENT ID CARD & QR CODE */}
       {activeTab === 'digital_id' && digitalId && (
         <div>
-          <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', padding: '12px 16px', borderRadius: '4px', marginBottom: '16px' }}>
-            <div style={{ fontWeight: 600, fontSize: '13px', color: '#1e3a8a' }}>
+          <div style={{ background: 'var(--bg)', border: '1px solid var(--line)', padding: '12px 16px', borderRadius: '4px', marginBottom: '16px' }}>
+            <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--primary)' }}>
               Security & Credential Verification Notice
             </div>
-            <div style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
               Each student is issued a unique dynamic QR code for campus identification, laboratory attendance, and institutional verification. Passwords, hashes, and sensitive authentication keys are never exposed in the QR credential.
             </div>
           </div>
@@ -393,12 +394,12 @@ export function StudentProfileView({ userRole }) {
               <div className="id-card-body">
                 <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
                   <div className="id-photo-box">
-                    <img src={apiUrl(digitalId.digital_id.photo_url || '/uploads/profiles/default_student.png')} alt={digitalId.digital_id.name} />
+                    <ProfilePhoto url={digitalId.digital_id.photo_url} name={digitalId.digital_id.name} />
                   </div>
 
                   <div style={{ flex: 1 }}>
                     <div className="id-field-label">Student Name</div>
-                    <div className="id-field-value" style={{ fontSize: '14px', color: '#1e3a8a' }}>{digitalId.digital_id.name}</div>
+                    <div className="id-field-value" style={{ fontSize: '14px', color: 'var(--primary)' }}>{digitalId.digital_id.name}</div>
 
                     <div className="id-field-label" style={{ marginTop: '6px' }}>University Seat No (USN)</div>
                     <div className="id-field-value">{digitalId.digital_id.usn}</div>
@@ -408,7 +409,7 @@ export function StudentProfileView({ userRole }) {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', borderTop: '1px solid var(--line)', paddingTop: '10px' }}>
                   <div>
                     <div className="id-field-label">Branch</div>
                     <div className="id-field-value" style={{ fontSize: '11px' }}>{digitalId.digital_id.department}</div>
@@ -419,7 +420,7 @@ export function StudentProfileView({ userRole }) {
                   </div>
                   <div>
                     <div className="id-field-label">Valid Thru</div>
-                    <div className="id-field-value" style={{ color: '#15803d' }}>{digitalId.digital_id.valid_thru}</div>
+                    <div className="id-field-value" style={{ color: 'var(--good-ink)' }}>{digitalId.digital_id.valid_thru}</div>
                   </div>
                   <div>
                     <div className="id-field-label">Emergency Tel</div>
@@ -436,13 +437,13 @@ export function StudentProfileView({ userRole }) {
 
             {/* Back Card with Unique QR Code */}
             <div className="id-card-badge">
-              <div className="id-card-header" style={{ background: '#0f172a' }}>
+              <div className="id-card-header" style={{ background: 'var(--ink)' }}>
                 <div className="id-card-header-college">INSTITUTIONAL DIGITAL CREDENTIAL</div>
                 <div className="id-card-header-sub">OFFICIAL SCANNABLE VERIFICATION BADGE</div>
               </div>
 
               <div className="id-card-body" style={{ textAlign: 'center' }}>
-                <div style={{ display: 'inline-block', padding: '6px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px' }}>
+                <div style={{ display: 'inline-block', padding: '6px', background: '#ffffff', border: '1px solid var(--line)', borderRadius: '4px' }}>
                   <img
                     src={digitalId.qr_code_image}
                     alt="Student ID QR Code"
@@ -450,17 +451,17 @@ export function StudentProfileView({ userRole }) {
                   />
                 </div>
 
-                <div style={{ fontSize: '11px', fontWeight: 600, color: '#1e3a8a', marginTop: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--primary)', marginTop: '8px' }}>
                   UNIQUE SECURE QR CODE
                 </div>
-                <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--muted)', marginTop: '2px' }}>
                   Scan with any camera or scanner to verify student credentials.
                 </div>
 
-                <div style={{ marginTop: '10px', padding: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', textAlign: 'left', fontSize: '10px', color: '#475569' }}>
+                <div style={{ marginTop: '10px', padding: '8px', background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: '4px', textAlign: 'left', fontSize: '10px', color: 'var(--muted)' }}>
                   <div><strong>Address:</strong> {digitalId.digital_id.address}</div>
                   <div><strong>Emergency Helpline:</strong> {digitalId.digital_id.emergency_contact}</div>
-                  <div style={{ marginTop: '4px', color: '#64748b', fontStyle: 'italic' }}>
+                  <div style={{ marginTop: '4px', color: 'var(--muted)', fontStyle: 'italic' }}>
                     If found, return to Registrar Office, Apex Institute of Engineering & Technology.
                   </div>
                 </div>
@@ -488,16 +489,16 @@ export function StudentProfileView({ userRole }) {
 
           {/* Verification Result Drawer */}
           {verifyResult && (
-            <div style={{ marginTop: '16px', background: '#f0fdf4', border: '1px solid #86efac', padding: '16px', borderRadius: '4px' }}>
+            <div style={{ marginTop: '16px', background: 'var(--good-tint)', border: '1px solid #86efac', padding: '16px', borderRadius: '4px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: 700, color: '#15803d', fontSize: '14px' }}>
+                <div style={{ fontWeight: 700, color: 'var(--good-ink)', fontSize: '14px' }}>
                   Official Registrar Verification Certificate
                 </div>
                 <button type="button" className="btn-secondary" style={{ fontSize: '11px' }} onClick={() => setVerifyResult(null)}>
                   Dismiss
                 </button>
               </div>
-              <div style={{ fontSize: '12px', color: '#166534', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--good-ink)', marginTop: '4px' }}>
                 Status: <strong>{verifyResult.student.academic_status}</strong> | Authority: <strong>{verifyResult.verification_source}</strong> | Timestamp: {verifyResult.timestamp}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginTop: '10px', fontSize: '12px' }}>
@@ -523,12 +524,12 @@ export function StudentProfileView({ userRole }) {
                   <button type="button" className="btn-secondary" onClick={() => setShowQrInspector(false)}>Close</button>
                 </div>
                 <div className="panel-card-body">
-                  <div style={{ fontSize: '12px', color: '#475569', marginBottom: '10px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '10px' }}>
                     The following exact text string is encoded inside the student's unique QR code. Notice that no passwords, private hashes, or security tokens are exposed:
                   </div>
 
                   <pre style={{
-                    background: '#0f172a', color: '#f8fafc', padding: '14px',
+                    background: 'var(--ink)', color: 'var(--bg)', padding: '14px',
                     borderRadius: '4px', fontSize: '12px', lineHeight: 1.6,
                     whiteSpace: 'pre-wrap', wordBreak: 'break-all'
                   }}>
@@ -777,8 +778,8 @@ export function NotificationsView({ userRole }) {
               type="button"
               className="btn-secondary"
               style={{
-                backgroundColor: activeTab === tab.id ? '#1e3a8a' : '#ffffff',
-                color: activeTab === tab.id ? '#ffffff' : '#1e293b'
+                backgroundColor: activeTab === tab.id ? 'var(--primary)' : '#ffffff',
+                color: activeTab === tab.id ? '#ffffff' : 'var(--ink)'
               }}
               onClick={() => setActiveTab(tab.id)}
             >
@@ -800,7 +801,7 @@ export function NotificationsView({ userRole }) {
             </div>
             <div className="stat-card">
               <div className="stat-label">Unread Alerts</div>
-              <div className="stat-value" style={{ color: unreadCount > 0 ? '#dc2626' : '#16a34a' }}>
+              <div className="stat-value" style={{ color: unreadCount > 0 ? 'var(--bad)' : 'var(--good)' }}>
                 {unreadCount}
               </div>
               <div className="stat-sub">Requires your review</div>
@@ -879,11 +880,11 @@ export function NotificationsView({ userRole }) {
           <div className="panel-card">
             <div className="panel-card-header">
               <h3 className="panel-card-title">Official Announcements & Notifications Ledger</h3>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>Showing {filteredNotifs.length} notices</span>
+              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Showing {filteredNotifs.length} notices</span>
             </div>
             <div className="panel-card-body" style={{ padding: '0' }}>
               {filteredNotifs.length === 0 ? (
-                <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)' }}>
                   No announcements match your search or filter criteria.
                 </div>
               ) : (
@@ -894,8 +895,8 @@ export function NotificationsView({ userRole }) {
                       className="list-item"
                       style={{
                         padding: '16px',
-                        borderBottom: '1px solid #e2e8f0',
-                        backgroundColor: n.is_read ? '#ffffff' : '#f0fdf4'
+                        borderBottom: '1px solid var(--line)',
+                        backgroundColor: n.is_read ? '#ffffff' : 'var(--good-tint)'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
@@ -909,7 +910,7 @@ export function NotificationsView({ userRole }) {
                           {!n.is_read && (
                             <span className="status-pill status-primary" style={{ fontSize: '10px' }}>UNREAD</span>
                           )}
-                          <span style={{ fontSize: '11px', color: '#64748b' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                             {n.published_date}
                           </span>
                         </div>
@@ -938,15 +939,15 @@ export function NotificationsView({ userRole }) {
                         </div>
                       </div>
 
-                      <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--ink)', marginBottom: '6px' }}>
                         {n.title}
                       </h4>
 
-                      <p style={{ fontSize: '13px', color: '#334155', lineHeight: '1.5', marginBottom: '8px' }}>
+                      <p style={{ fontSize: '13px', color: 'var(--ink)', lineHeight: '1.5', marginBottom: '8px' }}>
                         {n.content}
                       </p>
 
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
                         Issuing Authority: <strong>{n.department}</strong> | Scope: {n.target_role === 'all' ? 'Entire College' : n.target_role.toUpperCase()}
                       </div>
                     </li>
@@ -965,7 +966,7 @@ export function NotificationsView({ userRole }) {
             <div className="panel-card-header">
               <div>
                 <h3 className="panel-card-title">Faculty Consultation & Meeting Appointments</h3>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>Schedule office hours for project guidance, doubt clearing, or mentoring.</div>
+                <div style={{ fontSize: '12px', color: 'var(--muted)' }}>Schedule office hours for project guidance, doubt clearing, or mentoring.</div>
               </div>
               <button type="button" className="btn-primary" onClick={() => setShowApptModal(true)}>
                 + Request Faculty Appointment
@@ -976,7 +977,7 @@ export function NotificationsView({ userRole }) {
           <div className="panel-card">
             <div className="panel-card-header">
               <h3 className="panel-card-title">Scheduled Consultation Sessions</h3>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>Student USN: 1MS21CS084</span>
+              <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Student USN: 1MS21CS084</span>
             </div>
             <div className="table-responsive">
               <table className="data-table">
@@ -994,7 +995,7 @@ export function NotificationsView({ userRole }) {
                 <tbody>
                   {appointments.length === 0 ? (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--muted)' }}>
                         No appointment requests found. Click the button above to request a consultation slot.
                       </td>
                     </tr>
@@ -1006,7 +1007,7 @@ export function NotificationsView({ userRole }) {
                         <td style={{ maxWidth: '280px' }}>{a.purpose}</td>
                         <td>
                           <strong>{a.requested_date}</strong>
-                          <div style={{ fontSize: '11px', color: '#64748b' }}>{a.requested_slot}</div>
+                          <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{a.requested_slot}</div>
                         </td>
                         <td>
                           <span className={`status-pill ${
@@ -1017,7 +1018,7 @@ export function NotificationsView({ userRole }) {
                             {a.status}
                           </span>
                         </td>
-                        <td style={{ fontSize: '12px', color: '#475569' }}>
+                        <td style={{ fontSize: '12px', color: 'var(--muted)' }}>
                           {a.faculty_remarks || 'Awaiting faculty confirmation.'}
                         </td>
                         {(userRole === 'faculty' || userRole === 'admin') && (
@@ -1064,12 +1065,12 @@ export function NotificationsView({ userRole }) {
               <div className="panel-card-header">
                 <div>
                   <h3 className="panel-card-title">{f.name}</h3>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{f.designation}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{f.designation}</div>
                 </div>
                 <span className="status-pill status-neutral">{f.department.split('&')[0]}</span>
               </div>
               <div className="panel-card-body" style={{ flex: 1 }}>
-                <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '4px', marginBottom: '12px', fontSize: '12px' }}>
+                <div style={{ background: 'var(--bg)', padding: '10px', borderRadius: '4px', marginBottom: '12px', fontSize: '12px' }}>
                   <div style={{ marginBottom: '4px' }}>Office Room: <strong>{f.office}</strong></div>
                   <div style={{ marginBottom: '4px' }}>Email: <strong>{f.email}</strong></div>
                   <div>Consultation Slot: <strong>{f.consultation_hours}</strong></div>
@@ -1455,14 +1456,14 @@ export function FacultyDoubtPortalView({ userRole }) {
         </div>
         <div className="stat-card">
           <div className="stat-label">Resolved Doubts</div>
-          <div className="stat-value" style={{ color: '#16a34a' }}>
+          <div className="stat-value" style={{ color: 'var(--good)' }}>
             {doubts.filter(d => d.status === 'Resolved' || d.status === 'Answered').length}
           </div>
           <div className="stat-sub">Instructor solutions provided</div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Pending / In Review</div>
-          <div className="stat-value" style={{ color: '#d97706' }}>
+          <div className="stat-value" style={{ color: 'var(--warn)' }}>
             {doubts.filter(d => d.status === 'Submitted' || d.status === 'Under Review').length}
           </div>
           <div className="stat-sub">Awaiting faculty attention</div>
@@ -1528,7 +1529,7 @@ export function FacultyDoubtPortalView({ userRole }) {
       {/* Doubts Feed */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {doubts.length === 0 ? (
-          <div className="panel-card" style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+          <div className="panel-card" style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)' }}>
             No doubts match the selected subject or status filter.
           </div>
         ) : (
@@ -1542,22 +1543,22 @@ export function FacultyDoubtPortalView({ userRole }) {
                   <span className={`status-pill ${getStatusBadge(d.status)}`}>
                     {d.status}
                   </span>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                     Submitted by: <strong>{d.student_name}</strong> ({d.usn}) | {d.created_at}
                   </span>
                 </div>
 
-                <div style={{ fontSize: '12px', color: '#1e3a8a', fontWeight: 'bold' }}>
+                <div style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 'bold' }}>
                   Faculty: {d.faculty_name}
                 </div>
               </div>
 
               <div className="panel-card-body">
-                <h4 style={{ fontSize: '15px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' }}>
+                <h4 style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--ink)', marginBottom: '6px' }}>
                   {d.title}
                 </h4>
 
-                <p style={{ fontSize: '13px', color: '#334155', lineHeight: '1.5', marginBottom: '12px' }}>
+                <p style={{ fontSize: '13px', color: 'var(--ink)', lineHeight: '1.5', marginBottom: '12px' }}>
                   {d.question}
                 </p>
 
@@ -1574,8 +1575,8 @@ export function FacultyDoubtPortalView({ userRole }) {
 
                 {/* Conversation / Response Thread */}
                 {d.responses && d.responses.length > 0 && (
-                  <div style={{ marginTop: '12px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569', marginBottom: '8px' }}>
+                  <div style={{ marginTop: '12px', borderTop: '1px solid var(--line)', paddingTop: '12px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--muted)', marginBottom: '8px' }}>
                       Faculty Explanations & Dialogue Thread ({d.responses.length}):
                     </div>
 
@@ -1584,23 +1585,23 @@ export function FacultyDoubtPortalView({ userRole }) {
                         <div
                           key={resp.id}
                           style={{
-                            background: resp.responder_role === 'faculty' ? '#f0fdf4' : '#f8fafc',
-                            borderLeft: resp.responder_role === 'faculty' ? '3px solid #16a34a' : '3px solid #64748b',
+                            background: resp.responder_role === 'faculty' ? 'var(--good-tint)' : 'var(--bg)',
+                            borderLeft: resp.responder_role === 'faculty' ? '3px solid #16a34a' : '3px solid var(--muted)',
                             padding: '10px 12px',
                             borderRadius: '4px'
                           }}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
                             <strong>{resp.responder_name} ({resp.responder_role === 'faculty' ? 'Course Instructor' : 'Student'})</strong>
                             <span>{resp.responded_at}</span>
                           </div>
-                          <p style={{ fontSize: '13px', color: '#1e293b', margin: '0', lineHeight: '1.4' }}>
+                          <p style={{ fontSize: '13px', color: 'var(--ink)', margin: '0', lineHeight: '1.4' }}>
                             {resp.response_text}
                           </p>
                           {resp.attachment_file && (
                             <div style={{ marginTop: '6px' }}>
                               <button type="button" onClick={() => openExternal(apiUrl(`/uploads/${resp.attachment_file}`))}
-                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '11px', color: '#2563eb' }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '11px', color: 'var(--primary)' }}
                               >
                                 Download Response Attachment
                               </button>
@@ -1613,7 +1614,7 @@ export function FacultyDoubtPortalView({ userRole }) {
                 )}
 
                 {/* Actions Footer */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '14px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '14px', paddingTop: '10px', borderTop: '1px solid #F1EDF5' }}>
                   <button
                     type="button"
                     className="btn-primary"
@@ -1697,7 +1698,7 @@ export function FacultyDoubtPortalView({ userRole }) {
                   <input
                     type="text" className="form-input" readOnly
                     value={doubtForm.faculty_name}
-                    style={{ backgroundColor: '#f1f5f9' }}
+                    style={{ backgroundColor: 'var(--surface-2)' }}
                   />
                 </div>
 
@@ -1747,7 +1748,7 @@ export function FacultyDoubtPortalView({ userRole }) {
               <button type="button" className="btn-secondary" onClick={() => setRespondingDoubt(null)}>Close</button>
             </div>
             <div className="panel-card-body">
-              <div style={{ background: '#f8fafc', padding: '10px', borderRadius: '4px', marginBottom: '12px', fontSize: '12px' }}>
+              <div style={{ background: 'var(--bg)', padding: '10px', borderRadius: '4px', marginBottom: '12px', fontSize: '12px' }}>
                 <div>Course: <strong>{respondingDoubt.subject_code} - {respondingDoubt.subject_name}</strong></div>
                 <div>Original Question: <em>{respondingDoubt.question}</em></div>
               </div>

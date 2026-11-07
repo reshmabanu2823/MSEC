@@ -38,6 +38,7 @@ ROLE_RULES = {
     # Assignments, notes, exams
     'create_assignment': STAFF,
     'evaluate_assignment': STAFF,
+    'list_assignment_submissions': STAFF,
     'upload_study_material': STAFF,
     'toggle_hall_ticket_publish': STAFF,
     # Placements
@@ -54,7 +55,6 @@ ROLE_RULES = {
     'update_library_book': STAFF,
     'delete_library_book': STAFF,
     'issue_library_book': STAFF,
-    'return_library_book': STAFF,
     # Campus services
     'toggle_canteen_availability': STAFF,
     # Notifications
@@ -62,7 +62,6 @@ ROLE_RULES = {
     'delete_notification': STAFF,
     # Communications and doubts
     'update_appointment_status': STAFF,
-    'respond_to_doubt': STAFF,
     'update_doubt_status': STAFF,
     # Mentoring
     'toggle_pin_discussion': STAFF,
@@ -70,7 +69,6 @@ ROLE_RULES = {
     'update_meeting_status': STAFF,
     'add_mentor_book_session': STAFF,
     'update_mentor_remarks': STAFF,
-    'update_student_development': STAFF,
     'get_faculty_mentees': STAFF,
     'get_admin_mentor_overview': ADMIN,
     'admin_assign_mentor': ADMIN,

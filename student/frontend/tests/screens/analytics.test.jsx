@@ -46,7 +46,7 @@ describe('PerformanceAnalyticsScreen', () => {
     expect(screen.getByText('9.36')).toBeInTheDocument();
     expect(screen.getByText('82.5%')).toHaveClass('analytics__tone--warn');
     expect(screen.getByText('IMPROVEMENT')).toBeInTheDocument();
-    expect(screen.getByText('CS601: Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
+    expect(screen.getByText('Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
     expect(screen.getByText('Attend 8 more classes')).toBeInTheDocument();
     expect(screen.getByText(/Outstanding performance across all enrolled/)).toBeInTheDocument();
     expect(document.querySelector('table')).toBeNull();
@@ -95,7 +95,7 @@ describe('PerformanceAnalyticsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<PerformanceAnalyticsView />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('9.68')).toBeInTheDocument();
   });
 });

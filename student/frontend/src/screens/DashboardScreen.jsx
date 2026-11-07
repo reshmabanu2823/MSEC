@@ -3,7 +3,7 @@ import { apiRequest } from '../api';
 import AttendanceRing from '../components/AttendanceRing';
 import SavedRecordNotice from '../components/SavedRecordNotice';
 import { Icon } from '../components/Shell/icons';
-import { useOnline } from '../useOnline';
+import { OPEN_SUBMIT_KEY } from './AssignmentsScreen';
 import ErrorCard from '../components/ErrorCard';
 import './dashboard.css';
 
@@ -27,7 +27,6 @@ export default function DashboardHome({ onNavigate, currentUser, onOpenOnboardin
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [submittingId, setSubmittingId] = useState(null);
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -46,17 +45,10 @@ export default function DashboardHome({ onNavigate, currentUser, onOpenOnboardin
     fetchSummary();
   }, [fetchSummary]);
 
-  const handleAssignmentSubmit = async (id) => {
-    try {
-      setSubmitError('');
-      setSubmittingId(id);
-      await apiRequest(`/assignments/${id}/submit`, { method: 'POST' });
-      fetchSummary();
-    } catch (err) {
-      setSubmitError(err.message);
-    } finally {
-      setSubmittingId(null);
-    }
+  // Submitting needs a file: open Assignments with this assignment's upload sheet.
+  const handleAssignmentSubmit = (id) => {
+    sessionStorage.setItem(OPEN_SUBMIT_KEY, String(id));
+    onNavigate?.('assignments');
   };
 
   const go = (id) => () => onNavigate?.(id);
@@ -155,12 +147,11 @@ export default function DashboardHome({ onNavigate, currentUser, onOpenOnboardin
 
       <section>
         <SectionHeader title="Due soon" actionLabel="See all" onAction={go('assignments')} />
-        {submitError && <p className="notice notice--bad" role="alert">{submitError}</p>}
         <div className="reference-list">
           {(pending_assignments || []).map((a) => <div className="assignment-preview" key={a.id}>
             <span className="assignment-preview__dot" />
             <div className="reference-list__text"><strong>{a.title}</strong><span>{a.course_code} · {a.deadline_date}</span></div>
-            <button type="button" className="dashboard__submit" disabled={!online || submittingId === a.id} onClick={() => handleAssignmentSubmit(a.id)}>{submittingId === a.id ? 'Sending…' : 'Submit'}</button>
+            <button type="button" className="dashboard__submit" onClick={() => handleAssignmentSubmit(a.id)}>Submit</button>
           </div>)}
           {!pending_assignments?.length && <p className="empty-state">All assignments have been submitted.</p>}
         </div>

@@ -122,3 +122,12 @@ describe('TopBar', () => {
     expect(screen.getByTestId('notif-dot')).toBeInTheDocument();
   });
 });
+
+describe('More profile line', () => {
+  it('is role aware', async () => {
+    const { profileLine } = await import('../src/components/Shell/MoreScreen.jsx');
+    expect(profileLine({ role: 'student', identifier: '1MS21CS084', department: 'Computer Science & Engineering', semester: 6 })).toBe('1MS21CS084 · CSE · Sem 6');
+    expect(profileLine({ role: 'admin', email: 'v@gmail.com', department: 'Administration', semester: 0 })).toBe('Admin · v@gmail.com');
+    expect(profileLine({ role: 'faculty', email: 'r@gmail.com', classes: [{ department: 'CSE', semester: 6 }, { department: 'CSE', semester: 4 }] })).toBe('Faculty · CSE-6, CSE-4');
+  });
+});

@@ -37,12 +37,12 @@ beforeEach(() => {
 describe('ExaminationsScreen', () => {
   it('renders hall ticket, timetable and revaluation cards', async () => {
     render(<ExaminationsView userRole="student" />);
-    expect(await screen.findByText('CS601: Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
+    expect(await screen.findByText('Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
     expect(screen.getByText('Official Admit Card Released')).toBeInTheDocument();
     expect(screen.getByText('Nov 2026 Cycle')).toBeInTheDocument();
     expect(screen.getAllByText('1MS22CS001').length).toBe(2);
     expect(screen.getByText('Hall-B')).toBeInTheDocument();
-    expect(screen.getByText('CS601: Photocopy')).toBeInTheDocument();
+    expect(screen.getByText('Photocopy')).toBeInTheDocument();
     expect(screen.getByText('Verification in progress.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Admin:/ })).toBeNull();
     expect(document.querySelector('table')).toBeNull();
@@ -60,13 +60,13 @@ describe('ExaminationsScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<ExaminationsView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
-    expect(await screen.findByText('CS601: Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Distributed Systems', { selector: '.data-card-title' })).toBeInTheDocument();
   });
 
   it('submits a revaluation with the same payload', async () => {
     render(<ExaminationsView userRole="student" />);
-    await screen.findByText('CS601: Distributed Systems', { selector: '.data-card-title' });
+    await screen.findByText('Distributed Systems', { selector: '.data-card-title' });
     fireEvent.change(screen.getByLabelText('Select Course for Review'), { target: { value: 'CS602' } });
     fireEvent.change(screen.getByLabelText('Application Type'), { target: { value: 'Both' } });
     fireEvent.click(screen.getByRole('button', { name: 'Submit Revaluation Application' }));
@@ -81,17 +81,17 @@ describe('ExaminationsScreen', () => {
 
   it('revaluation failure shows ErrorCard with a retry that resubmits', async () => {
     render(<ExaminationsView userRole="student" />);
-    await screen.findByText('CS601: Distributed Systems', { selector: '.data-card-title' });
+    await screen.findByText('Distributed Systems', { selector: '.data-card-title' });
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     fireEvent.click(screen.getByRole('button', { name: 'Submit Revaluation Application' }));
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('done')).toBeInTheDocument();
   });
 
   it('only admin sees the publish toggle and it posts the flipped flag', async () => {
     render(<ExaminationsView userRole="admin" />);
-    await screen.findByText('CS601: Distributed Systems', { selector: '.data-card-title' });
+    await screen.findByText('Distributed Systems', { selector: '.data-card-title' });
     fireEvent.click(screen.getByRole('button', { name: 'Admin: Unpublish Hall Tickets' }));
     await waitFor(() =>
       expect(apiRequest).toHaveBeenCalledWith('/examinations/hall-ticket/publish', {

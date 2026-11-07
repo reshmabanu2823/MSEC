@@ -90,7 +90,7 @@ describe('TimetableScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<TimetableView userRole="student" />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByText('Cloud')).toBeInTheDocument();
   });
 

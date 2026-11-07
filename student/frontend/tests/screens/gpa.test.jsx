@@ -120,7 +120,7 @@ describe('GpaCalculatorScreen', () => {
     apiRequest.mockRejectedValueOnce(new NetworkError('down'));
     render(<GpaCalculatorView />);
     expect(await screen.findByText("Can't reach the server")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
     await waitFor(() => expect(screen.queryByText("Can't reach the server")).toBeNull());
     expect(screen.getByRole('button', { name: 'SGPA' })).toHaveAttribute('aria-pressed', 'true');
   });

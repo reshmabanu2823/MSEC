@@ -3,12 +3,24 @@ import { SCREENS, MORE_GROUPS } from '../../nav';
 import { Icon } from './icons';
 import { initials } from './TopBar';
 
+const ROLE_LABEL = { admin: 'Admin', faculty: 'Faculty' };
+const shortDept = (d) => (d === 'Computer Science & Engineering' ? 'CSE' : d);
+
+// Students: "USN · CSE · Sem 6". Staff: "Admin · email" or "Faculty · CSE-6, CSE-4".
+export function profileLine(user) {
+  if (user.role === 'student' || !user.role) {
+    return [user.identifier || user.usn, shortDept(user.department), user.semester ? `Sem ${user.semester}` : null].filter(Boolean).join(' · ');
+  }
+  const classes = (user.classes || []).map((c) => `${shortDept(c.department)}-${c.semester}`).join(', ');
+  return [ROLE_LABEL[user.role] || user.role, user.role === 'faculty' && classes ? classes : user.email].filter(Boolean).join(' · ');
+}
+
 export default function MoreScreen({ onOpen, onLogout, onLogoutAll, onSwitchPortal, user }) {
   return (
     <div className="more">
       {user && <button type="button" className="more__profile" onClick={() => onOpen('profile')}>
         <span className="more__avatar">{initials(user)}</span>
-        <span className="more__profile-text"><strong>{user.name}</strong><span>{user.identifier || user.usn} · {user.department === 'Computer Science & Engineering' ? 'CSE' : user.department} · Sem {user.semester}</span></span>
+        <span className="more__profile-text"><strong>{user.name}</strong><span>{profileLine(user)}</span></span>
         <Icon name="chevron" size={18} />
       </button>}
       {MORE_GROUPS.map((group) => (

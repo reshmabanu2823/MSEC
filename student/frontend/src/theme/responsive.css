@@ -32,9 +32,10 @@
   /* Timetable: day strip full width, classes in two columns. */
   .timetable__timeline { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
 
-  /* More: groups in two columns. */
-  .more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-  .more > .more__profile { grid-column: 1 / -1; }
+  /* More: masonry columns so groups stack without gaps. */
+  .more { display: block; columns: 2; column-gap: 16px; }
+  .more > * { break-inside: avoid; margin-bottom: 18px; }
+  .more > .more__profile { column-span: all; max-width: 560px; }
 
   /* Ask AI: readable line length. */
   .ai { max-width: 760px; margin-inline: auto; }
@@ -59,8 +60,7 @@
 
   .attendance, .academics { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 28px; }
   .timetable__timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .more { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .more > .more__profile { grid-column: 1 / -1; max-width: 560px; }
+  .more { columns: 3; }
 }
 
 /* Hover affordances only where a mouse exists. */

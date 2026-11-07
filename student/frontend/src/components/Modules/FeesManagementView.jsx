@@ -60,7 +60,7 @@ function Modal({ title, onClose, children }) {
         boxShadow: '0 4px 24px rgba(0,0,0,0.18)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ margin: 0, fontSize: '16px', color: '#1e3a8a' }}>{title}</h3>
+          <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--primary)' }}>{title}</h3>
           <button type="button" className="btn-secondary" onClick={onClose} style={{ padding: '4px 10px' }}>Close</button>
         </div>
         {children}
@@ -73,8 +73,8 @@ function Modal({ title, onClose, children }) {
 function DemoNotice() {
   return (
     <div style={{
-      border: '1.5px solid #f59e0b', background: '#fffbeb', borderRadius: '6px',
-      padding: '10px 14px', fontSize: '13px', color: '#92400e', marginBottom: '16px'
+      border: '1.5px solid #f59e0b', background: 'var(--warn-tint)', borderRadius: '6px',
+      padding: '10px 14px', fontSize: '13px', color: 'var(--warn-ink)', marginBottom: '16px'
     }}>
       <strong>DEMO PAYMENT MODE:</strong> This is a demonstration only. No real financial transaction
       will occur. Card details entered here are not stored or transmitted to any payment gateway.
@@ -88,7 +88,7 @@ function StatCard({ label, value, sub }) {
     <div className="stat-card">
       <div className="stat-label">{label}</div>
       <div className="stat-value">{value}</div>
-      {sub && <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>{sub}</div>}
+      {sub && <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>{sub}</div>}
     </div>
   );
 }
@@ -130,10 +130,10 @@ function FeeDetailsTab({ studentId }) {
       <div className="banner-card" style={{ marginBottom: '18px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: '18px', fontWeight: 700, color: '#1e3a8a' }}>{student.name}</div>
-            <div style={{ fontSize: '13px', color: '#374151', marginTop: '2px' }}>USN: {student.usn}</div>
+            <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--primary)' }}>{student.name}</div>
+            <div style={{ fontSize: '13px', color: 'var(--ink)', marginTop: '2px' }}>USN: {student.usn}</div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '18px', fontSize: '13px', color: '#374151' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '18px', fontSize: '13px', color: 'var(--ink)' }}>
             <span>Department: <strong>{student.department}</strong></span>
             <span>Semester: <strong>{student.current_semester}</strong></span>
             <span>Academic Year: <strong>{student.academic_year}</strong></span>
@@ -143,7 +143,7 @@ function FeeDetailsTab({ studentId }) {
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <label style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>Semester:</label>
+        <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink)' }}>Semester:</label>
         <select
           className="form-select"
           style={{ width: '120px' }}
@@ -154,7 +154,7 @@ function FeeDetailsTab({ studentId }) {
             <option key={s} value={s}>Semester {s}</option>
           ))}
         </select>
-        <label style={{ fontSize: '13px', fontWeight: 500, color: '#374151' }}>Academic Year:</label>
+        <label style={{ fontSize: '13px', fontWeight: 500, color: 'var(--ink)' }}>Academic Year:</label>
         <select
           className="form-select"
           style={{ width: '140px' }}
@@ -207,7 +207,7 @@ function FeeDetailsTab({ studentId }) {
                 ))}
               </tbody>
               <tfoot>
-                <tr style={{ fontWeight: 700, background: '#f1f5f9' }}>
+                <tr style={{ fontWeight: 700, background: 'var(--surface-2)' }}>
                   <td>Total</td>
                   <td>{fmt(summary?.total_payable)}</td>
                   <td>{fmt(summary?.total_paid)}</td>
@@ -217,7 +217,7 @@ function FeeDetailsTab({ studentId }) {
               </tfoot>
             </table>
           ) : (
-            <p style={{ color: '#6b7280', fontSize: '13px' }}>
+            <p style={{ color: 'var(--muted)', fontSize: '13px' }}>
               No fee records found for Semester {semester} ({academicYear}).
             </p>
           )}
@@ -354,7 +354,7 @@ function MakePaymentTab({ studentId }) {
 
       {/* Outstanding balance banner */}
       {data?.summary && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '12px 16px', marginBottom: '16px', fontSize: '14px', color: '#1e3a8a' }}>
+        <div style={{ background: 'var(--primary-tint)', border: '1px solid var(--primary-tint)', borderRadius: '6px', padding: '12px 16px', marginBottom: '16px', fontSize: '14px', color: 'var(--primary)' }}>
           Outstanding Balance for Semester {semester}: <strong>Rs. {fmt(data.summary.total_outstanding)}</strong>
         </div>
       )}
@@ -365,7 +365,7 @@ function MakePaymentTab({ studentId }) {
           {unpaidRecords.length === 0 ? (
             <div className="panel-card">
               <div className="panel-card-body">
-                <p style={{ color: '#16a34a', fontWeight: 500 }}>All fees for Semester {semester} are paid.</p>
+                <p style={{ color: 'var(--good)', fontWeight: 500 }}>All fees for Semester {semester} are paid.</p>
               </div>
             </div>
           ) : (
@@ -415,7 +415,7 @@ function MakePaymentTab({ studentId }) {
                       onChange={e => setPayAmount(e.target.value)}
                       placeholder="Enter amount"
                     />
-                    <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '3px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '3px' }}>
                       You may reduce for partial payment if allowed.
                     </div>
                   </div>
@@ -555,9 +555,9 @@ function PaymentHistoryTab({ studentId, userRole }) {
       <html><head><title>Fee Receipt - ${txn.receipt_number}</title>
       <style>
         body { font-family: Arial, sans-serif; padding: 32px; color: #111; }
-        h2 { color: #1e3a8a; } table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        td, th { border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 13px; }
-        th { background: #f1f5f9; text-align: left; }
+        h2 { color: var(--primary); } table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        td, th { border: 1px solid var(--line); padding: 8px 12px; font-size: 13px; }
+        th { background: #F1EDF5; text-align: left; }
         .footer { margin-top: 32px; font-size: 12px; color: #6b7280; }
       </style></head><body>
       <h2>College Student Management Portal</h2>
@@ -590,7 +590,7 @@ function PaymentHistoryTab({ studentId, userRole }) {
         <div className="panel-card-header">Payment History</div>
         <div className="panel-card-body table-responsive">
           {txns.length === 0 ? (
-            <p style={{ color: '#6b7280', fontSize: '13px' }}>No payment transactions found.</p>
+            <p style={{ color: 'var(--muted)', fontSize: '13px' }}>No payment transactions found.</p>
           ) : (
             <table className="data-table">
               <thead>
@@ -702,36 +702,36 @@ function ScholarshipsTab({ studentId, userRole }) {
           <div className="panel-card-header">Available Scholarships</div>
           <div className="panel-card-body">
             {scholarships.length === 0 ? (
-              <p style={{ color: '#6b7280', fontSize: '13px' }}>No active scholarships at this time.</p>
+              <p style={{ color: 'var(--muted)', fontSize: '13px' }}>No active scholarships at this time.</p>
             ) : scholarships.map(sc => (
               <div key={sc.id} style={{
-                border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px',
-                marginBottom: '12px', background: '#f8fafc'
+                border: '1px solid var(--line)', borderRadius: '6px', padding: '12px',
+                marginBottom: '12px', background: 'var(--bg)'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: '#1e3a8a' }}>{sc.name}</div>
+                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--primary)' }}>{sc.name}</div>
                   <span className="status-pill status-neutral" style={{ fontSize: '10px' }}>{sc.scholarship_type}</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#374151', marginBottom: '4px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--ink)', marginBottom: '4px' }}>
                   Max Award: <strong>Rs. {fmt(sc.max_amount)}</strong>
                 </div>
                 {sc.min_cgpa && (
-                  <div style={{ fontSize: '12px', color: '#374151', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--ink)', marginBottom: '4px' }}>
                     Min CGPA: <strong>{sc.min_cgpa}</strong>
                   </div>
                 )}
                 {sc.max_family_income && (
-                  <div style={{ fontSize: '12px', color: '#374151', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--ink)', marginBottom: '4px' }}>
                     Max Family Income: <strong>Rs. {fmt(sc.max_family_income)}</strong>
                   </div>
                 )}
                 {sc.deadline && (
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>
                     Deadline: {fmtDate(sc.deadline)}
                   </div>
                 )}
                 {sc.eligibility_criteria && (
-                  <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '8px' }}>
                     {sc.eligibility_criteria}
                   </div>
                 )}
@@ -756,7 +756,7 @@ function ScholarshipsTab({ studentId, userRole }) {
           <div className="panel-card-header">My Applications</div>
           <div className="panel-card-body table-responsive">
             {applications.length === 0 ? (
-              <p style={{ color: '#6b7280', fontSize: '13px' }}>No scholarship applications yet.</p>
+              <p style={{ color: 'var(--muted)', fontSize: '13px' }}>No scholarship applications yet.</p>
             ) : (
               <table className="data-table">
                 <thead>
@@ -789,7 +789,7 @@ function ScholarshipsTab({ studentId, userRole }) {
       {applyModal && (
         <Modal title={`Apply for ${applyModal.name}`} onClose={() => setApplyModal(null)}>
           <Alert type="danger" msg={error} />
-          <div style={{ marginBottom: '12px', fontSize: '13px', color: '#374151' }}>
+          <div style={{ marginBottom: '12px', fontSize: '13px', color: 'var(--ink)' }}>
             <strong>Max Award:</strong> Rs. {fmt(applyModal.max_amount)}<br />
             <strong>Deadline:</strong> {fmtDate(applyModal.deadline)}
           </div>
@@ -859,7 +859,7 @@ function FeeReportTab({ studentId }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h3 style={{ margin: 0, fontSize: '15px', color: '#1e3a8a' }}>
+        <h3 style={{ margin: 0, fontSize: '15px', color: 'var(--primary)' }}>
           Fee Statement — {academicYear}
         </h3>
         <button type="button" className="btn-primary" onClick={downloadReport}>
@@ -869,7 +869,7 @@ function FeeReportTab({ studentId }) {
 
       {/* Student info */}
       <div className="banner-card" style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '13px', color: '#374151' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', fontSize: '13px', color: 'var(--ink)' }}>
           <span><strong>Name:</strong> {student?.name || 'Alex Kumar'}</span>
           <span><strong>USN:</strong> {student?.usn || '1MS21CS084'}</span>
           <span><strong>Department:</strong> {student?.department || 'Computer Science & Engineering'}</span>
@@ -1197,7 +1197,7 @@ function AdminDashboardTab() {
                     <td>{s.usn}</td>
                     <td>{s.department}</td>
                     <td>Sem {s.semester}</td>
-                    <td style={{ color: '#dc2626', fontWeight: 600 }}>{fmt(s.total_outstanding)}</td>
+                    <td style={{ color: 'var(--bad)', fontWeight: 600 }}>{fmt(s.total_outstanding)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -1217,7 +1217,7 @@ function AdminDashboardTab() {
         </div>
         <div className="panel-card-body table-responsive">
           {structures.length === 0 ? (
-            <p style={{ color: '#6b7280', fontSize: '13px' }}>No fee structures found for {academicYear}.</p>
+            <p style={{ color: 'var(--muted)', fontSize: '13px' }}>No fee structures found for {academicYear}.</p>
           ) : (
             <table className="data-table">
               <thead>
@@ -1252,7 +1252,7 @@ function AdminDashboardTab() {
         <div className="panel-card-header">Scholarship Applications</div>
         <div className="panel-card-body table-responsive">
           {scholarshipApps.length === 0 ? (
-            <p style={{ color: '#6b7280', fontSize: '13px' }}>No scholarship applications to review.</p>
+            <p style={{ color: 'var(--muted)', fontSize: '13px' }}>No scholarship applications to review.</p>
           ) : (
             <table className="data-table">
               <thead>
@@ -1338,7 +1338,7 @@ function AdminDashboardTab() {
       {reviewModal && (
         <Modal title={`Review: ${reviewModal.scholarship_name}`} onClose={() => setReviewModal(null)}>
           <Alert type="danger" msg={error} />
-          <div style={{ fontSize: '13px', color: '#374151', marginBottom: '12px' }}>
+          <div style={{ fontSize: '13px', color: 'var(--ink)', marginBottom: '12px' }}>
             <strong>Student:</strong> {reviewModal.student_name || `#${reviewModal.student_id}`}<br />
             <strong>Applied:</strong> {fmtDate(reviewModal.application_date)}<br />
             {reviewModal.application_text && (

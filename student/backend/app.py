@@ -17,7 +17,7 @@ import qrcode
 from database import (
     get_db, init_db, UPLOAD_DIR, NOTES_UPLOAD_DIR, ASSIGNMENTS_UPLOAD_DIR,
     PROFILES_UPLOAD_DIR, RESUMES_UPLOAD_DIR, PROJECTS_UPLOAD_DIR, CERTIFICATES_UPLOAD_DIR,
-    DOUBTS_UPLOAD_DIR
+    DOUBTS_UPLOAD_DIR, close_request_connections
 )
 from auth import guard as auth_guard
 from auth.routes import bp as auth_bp, cors_origins
@@ -35,6 +35,7 @@ CORS(app, resources={r"/api/*": {"origins": cors_origins()}, r"/uploads/*": {"or
 
 init_db()
 app.register_blueprint(auth_bp)
+app.teardown_appcontext(close_request_connections)
 app.register_blueprint(teacher_bp)
 app.register_blueprint(admin_bp)
 auth_guard.install(app)
@@ -630,6 +631,21 @@ def upload_assignment_submission(assignment_id):
 
     return jsonify({'message': f'Assignment file "{filename}" submitted successfully. Status: {status}.'})
 
+@app.route('/api/assignments/<int:assignment_id>/submissions', methods=['GET'])
+def list_assignment_submissions(assignment_id):
+    """Staff: submissions for one assignment, limited to students in the teacher's classes."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT s.id, s.student_id, s.student_name, s.file_name, s.submitted_at, s.status, s.scored_marks, s.feedback,
+               u.identifier AS usn, u.department, u.semester
+        FROM assignment_submissions s JOIN users u ON u.id = s.student_id
+        WHERE s.assignment_id = ?
+        ORDER BY s.submitted_at DESC
+    """, (assignment_id,)).fetchall()
+    out = [dict(r) for r in rows if staff_can_access_student(conn, r['student_id'])]
+    conn.close()
+    return jsonify({'submissions': out})
+
 @app.route('/api/assignments/<int:assignment_id>/evaluate', methods=['POST'])
 def evaluate_assignment(assignment_id):
     data = request.get_json() or {}
@@ -1082,7 +1098,7 @@ def save_gpa_semester():
     cum_cgpa = 0.0
     if agg and agg['cum_credits'] and agg['cum_credits'] > 0:
         cum_cgpa = round(agg['cum_points'] / agg['cum_credits'], 2)
-        cursor.execute("UPDATE student_profiles SET cgpa = ?, credits_earned = ? WHERE user_id = ?", (cum_cgpa, int(agg['cum_credits'], uid())))
+        cursor.execute("UPDATE student_profiles SET cgpa = ?, credits_earned = ? WHERE user_id = ?", (cum_cgpa, int(agg['cum_credits']), uid()))
 
     conn.commit()
     conn.close()
@@ -1105,7 +1121,7 @@ def delete_gpa_record(record_id):
     cum_cgpa = 0.0
     if agg and agg['cum_credits'] and agg['cum_credits'] > 0:
         cum_cgpa = round(agg['cum_points'] / agg['cum_credits'], 2)
-        cursor.execute("UPDATE student_profiles SET cgpa = ?, credits_earned = ? WHERE user_id = ?", (cum_cgpa, int(agg['cum_credits'], uid())))
+        cursor.execute("UPDATE student_profiles SET cgpa = ?, credits_earned = ? WHERE user_id = ?", (cum_cgpa, int(agg['cum_credits']), uid()))
     else:
         cursor.execute("UPDATE student_profiles SET cgpa = 0.0 WHERE user_id = ?", (uid(),))
 
@@ -2298,6 +2314,9 @@ def return_library_book(borrow_id):
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM library_borrow_records WHERE id = ?", (borrow_id,))
     rec = cursor.fetchone()
+    if rec and not is_staff() and rec['student_id'] != uid():
+        conn.close()
+        return jsonify({'error': "You don't have access."}), 403
     if not rec:
         conn.close()
         return jsonify({'error': 'Borrow record not found.'}), 404
@@ -3056,21 +3075,20 @@ def submit_doubt():
 
 @app.route('/api/doubts/<int:doubt_id>/respond', methods=['POST'])
 def respond_to_doubt(doubt_id):
-    responder_name = request.form.get('responder_name') or ''
+    # Name and role always come from the session, never the client.
+    responder_name = g.user['name']
     responder_role = 'faculty' if is_staff() else 'student'
-    response_text = request.form.get('response_text') or ''
-
-    if not response_text:
-        data = request.get_json(silent=True) or {}
-        responder_name = data.get('responder_name') or responder_name
-        responder_role = responder_role
-        response_text = data.get('response_text') or response_text
+    response_text = request.form.get('response_text') or (request.get_json(silent=True) or {}).get('response_text') or ''
 
     if not response_text:
         return jsonify({'error': 'Response text cannot be empty.'}), 400
 
-    if not responder_name:
-        responder_name = g.user['name']
+    if not is_staff():
+        owner_conn = get_db()
+        owner = owner_conn.execute("SELECT student_id FROM faculty_doubts WHERE id = ?", (doubt_id,)).fetchone()
+        owner_conn.close()
+        if not owner or owner['student_id'] != uid():
+            return jsonify({'error': "You don't have access."}), 403
 
     attachment_rel = ''
     file = request.files.get('attachment')

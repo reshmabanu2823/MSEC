@@ -503,7 +503,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
 
   if (loading) {
     return (
-      <div style={{ padding: '24px', color: '#475569' }}>
+      <div style={{ padding: '24px', color: 'var(--muted)' }}>
         Loading Faculty Mentor records from database...
       </div>
     );
@@ -642,9 +642,9 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
               <div style={{
                 width: '120px',
                 height: '140px',
-                border: '2px solid #1e3a8a',
+                border: '2px solid var(--primary)',
                 borderRadius: '4px',
-                background: '#f1f5f9',
+                background: 'var(--surface-2)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -657,7 +657,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   width: '64px',
                   height: '64px',
                   borderRadius: '50%',
-                  background: '#1e3a8a',
+                  background: 'var(--primary)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
@@ -668,54 +668,54 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                 }}>
                   {(mentor.mentor_name || mentor.name || 'KV').split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: '#1e293b' }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--ink)' }}>
                   {mentor.faculty_id || 'EMP-CS104'}
                 </span>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>Faculty Mentor</span>
+                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>Faculty Mentor</span>
               </div>
 
               {/* Detailed Columns */}
               <div style={{ flex: 1, minWidth: '260px' }}>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#1e3a8a' }}>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--primary)' }}>
                   {mentor.mentor_name || mentor.name}
                 </div>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#475569', marginTop: '2px' }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--muted)', marginTop: '2px' }}>
                   {mentor.mentor_designation || mentor.designation}
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
                   Department: <strong>{mentor.mentor_dept || mentor.department}</strong>
                 </div>
 
                 <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: '600' }}>
                       Faculty Specialization
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '500', color: '#0f172a' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ink)' }}>
                       {mentor.mentor_specialization || mentor.specialization}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: '600' }}>
                       Subjects Handled
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '500', color: '#0f172a' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ink)' }}>
                       {mentor.subjects_handled}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: '600' }}>
                       Office Room Location
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#0f172a' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--ink)' }}>
                       {mentor.office_room}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: '600' }}>
                       Consultation Hours
                     </div>
-                    <div style={{ fontSize: '12px', fontWeight: '600', color: '#15803d' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--good-ink)' }}>
                       {mentor.consultation_hours}
                     </div>
                   </div>
@@ -788,7 +788,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" style={{ textAlign: 'center', color: '#64748b' }}>
+                        <td colSpan="4" style={{ textAlign: 'center', color: 'var(--muted)' }}>
                           Consultation hours: {mentor.consultation_hours}
                         </td>
                       </tr>
@@ -820,11 +820,11 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   </thead>
                   <tbody>
                     {menteesList.map((p) => (
-                      <tr key={p.student_id || p.usn} style={{ background: p.usn === '1MS21CS084' ? '#f0f9ff' : 'transparent' }}>
+                      <tr key={p.student_id || p.usn} style={{ background: p.usn === '1MS21CS084' ? 'var(--primary-tint)' : 'transparent' }}>
                         <td>
                           <strong>{p.usn}</strong>
                           {p.usn === '1MS21CS084' && (
-                            <span style={{ marginLeft: '6px', fontSize: '10px', background: '#1e3a8a', color: '#fff', padding: '1px 5px', borderRadius: '3px' }}>
+                            <span style={{ marginLeft: '6px', fontSize: '10px', background: 'var(--primary)', color: '#fff', padding: '1px 5px', borderRadius: '3px' }}>
                               You
                             </span>
                           )}
@@ -856,9 +856,9 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
               <div style={{
                 width: '130px',
                 height: '150px',
-                border: '2px solid #1e3a8a',
+                border: '2px solid var(--primary)',
                 borderRadius: '4px',
-                background: '#f8fafc',
+                background: 'var(--bg)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -869,7 +869,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   width: '76px',
                   height: '76px',
                   borderRadius: '50%',
-                  background: '#1e3a8a',
+                  background: 'var(--primary)',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
@@ -879,38 +879,38 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                 }}>
                   {(mentor.mentor_name || mentor.name || 'KV').split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: '#1e293b', marginTop: '6px' }}>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--ink)', marginTop: '6px' }}>
                   {mentor.faculty_id || 'EMP-CS104'}
                 </div>
-                <div style={{ fontSize: '10px', color: '#64748b' }}>Department of CSE</div>
+                <div style={{ fontSize: '10px', color: 'var(--muted)' }}>Department of CSE</div>
               </div>
 
               <div style={{ flex: 1 }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1e3a8a' }}>
+                <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary)' }}>
                   {mentor.mentor_name || mentor.name}
                 </h2>
-                <div style={{ fontSize: '14px', fontWeight: '600', color: '#334155', marginTop: '2px' }}>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--ink)', marginTop: '2px' }}>
                   {mentor.mentor_designation || mentor.designation}
                 </div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>
                   Qualification: <strong>{mentor.mentor_qualification || mentor.qualification}</strong>
                 </div>
 
-                <div style={{ marginTop: '12px', fontSize: '13px', color: '#334155', lineHeight: '1.6' }}>
+                <div style={{ marginTop: '12px', fontSize: '13px', color: 'var(--ink)', lineHeight: '1.6' }}>
                   {mentor.bio || 'Chief Academic Mentor with 18+ years of undergraduate engineering guidance.'}
                 </div>
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', marginBottom: '12px' }}>
+            <div style={{ borderTop: '1px solid var(--line)', paddingTop: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ink)', marginBottom: '12px' }}>
                 Official Contact & Consultation Details
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div className="stat-card" style={{ padding: '12px' }}>
                   <div className="stat-label">Official Email Address</div>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e3a8a', marginTop: '4px' }}>
-                    <a href={`mailto:${mentor.mentor_email || mentor.email}`} style={{ color: '#1e3a8a', textDecoration: 'none' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--primary)', marginTop: '4px' }}>
+                    <a href={`mailto:${mentor.mentor_email || mentor.email}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
                       {mentor.mentor_email || mentor.email}
                     </a>
                   </div>
@@ -931,8 +931,8 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
 
                 <div className="stat-card" style={{ padding: '12px' }}>
                   <div className="stat-label">Official Contact Number</div>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e3a8a', marginTop: '4px' }}>
-                    <a href={`tel:${mentor.mentor_phone || mentor.phone}`} style={{ color: '#1e3a8a', textDecoration: 'none' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--primary)', marginTop: '4px' }}>
+                    <a href={`tel:${mentor.mentor_phone || mentor.phone}`} style={{ color: 'var(--primary)', textDecoration: 'none' }}>
                       {mentor.mentor_phone || mentor.phone}
                     </a>
                   </div>
@@ -953,34 +953,34 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
 
                 <div className="stat-card" style={{ padding: '12px' }}>
                   <div className="stat-label">Office Room Location</div>
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', marginTop: '4px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--ink)', marginTop: '4px' }}>
                     {mentor.office_room}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
                     Academic Block 3, CS Department
                   </div>
                 </div>
 
                 <div className="stat-card" style={{ padding: '12px' }}>
                   <div className="stat-label">Consultation Hours</div>
-                  <div style={{ fontSize: '12px', fontWeight: '600', color: '#15803d', marginTop: '4px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--good-ink)', marginTop: '4px' }}>
                     {mentor.consultation_hours}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
                     Prior appointment recommended
                   </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
-              <h4 style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>
+            <div style={{ marginTop: '20px', borderTop: '1px solid var(--line)', paddingTop: '16px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--ink)', marginBottom: '8px' }}>
                 Academic Specialization & Courses Taught
               </h4>
-              <p style={{ fontSize: '13px', color: '#334155', marginBottom: '8px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--ink)', marginBottom: '8px' }}>
                 <strong>Specialization:</strong> {mentor.mentor_specialization || mentor.specialization}
               </p>
-              <p style={{ fontSize: '13px', color: '#334155' }}>
+              <p style={{ fontSize: '13px', color: 'var(--ink)' }}>
                 <strong>Subjects Handled:</strong> {mentor.subjects_handled}
               </p>
             </div>
@@ -996,7 +996,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
           <div className="panel-card-header">
             <div>
               <h3 className="panel-card-title">Direct Messaging with Faculty Mentor</h3>
-              <div style={{ fontSize: '11px', color: '#64748b' }}>
+              <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
                 Conversation between {isFaculty ? 'Student (Alex Kumar)' : 'Faculty Mentor (' + (mentor.mentor_name || mentor.name) + ')'}
               </div>
             </div>
@@ -1021,12 +1021,12 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
           <div className="panel-card-body">
             {/* Conversation Stream */}
             <div style={{
-              border: '1px solid #d1d5db',
+              border: '1px solid var(--line)',
               borderRadius: '4px',
               height: '340px',
               overflowY: 'auto',
               padding: '16px',
-              background: '#f8fafc',
+              background: 'var(--bg)',
               marginBottom: '16px',
               display: 'flex',
               flexDirection: 'column',
@@ -1041,14 +1041,14 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                       style={{
                         alignSelf: isCurrentRole ? 'flex-end' : 'flex-start',
                         maxWidth: '75%',
-                        background: isCurrentRole ? '#eff6ff' : '#ffffff',
-                        border: `1px solid ${isCurrentRole ? '#bfdbfe' : '#e2e8f0'}`,
+                        background: isCurrentRole ? 'var(--primary-tint)' : '#ffffff',
+                        border: `1px solid ${isCurrentRole ? 'var(--primary-tint)' : 'var(--line)'}`,
                         borderRadius: '6px',
                         padding: '10px 14px'
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: isCurrentRole ? '#1e3a8a' : '#0f172a' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: isCurrentRole ? 'var(--primary)' : 'var(--ink)' }}>
                           {m.sender_name}
                         </span>
                         <span className={`status-pill ${m.sender_role === 'faculty' ? 'status-success' : 'status-neutral'}`} style={{ fontSize: '10px' }}>
@@ -1056,28 +1056,28 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                         </span>
                       </div>
                       {m.subject && (
-                        <div style={{ fontSize: '11px', fontWeight: '600', color: '#475569', marginBottom: '4px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--muted)', marginBottom: '4px' }}>
                           Subject: {m.subject}
                         </div>
                       )}
-                      <div style={{ fontSize: '13px', color: '#1e293b', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--ink)', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
                         {m.message}
                       </div>
-                      <div style={{ fontSize: '10px', color: '#94a3b8', textAlign: 'right', marginTop: '6px' }}>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)', textAlign: 'right', marginTop: '6px' }}>
                         {m.created_at}
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div style={{ textAlign: 'center', color: '#64748b', margin: 'auto' }}>
+                <div style={{ textAlign: 'center', color: 'var(--muted)', margin: 'auto' }}>
                   No messages yet. Start your conversation with your mentor below.
                 </div>
               )}
             </div>
 
             {/* Compose Message Form */}
-            <form onSubmit={handleSendMessage} style={{ borderTop: '1px solid #e2e8f0', paddingTop: '16px' }}>
+            <form onSubmit={handleSendMessage} style={{ borderTop: '1px solid var(--line)', paddingTop: '16px' }}>
               <div style={{ marginBottom: '10px' }}>
                 <input
                   type="text"
@@ -1098,7 +1098,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                   Messages are saved securely to your official mentoring record.
                 </span>
                 <button type="submit" className="btn-primary" disabled={sendingMsg}>
@@ -1122,7 +1122,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                 <h3 className="panel-card-title">
                   Mentor Group Discussion Forum: {mentor.group_name || 'Group A'}
                 </h3>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
                   Collaborative knowledge exchange, doubt clarification, and study groups with peers and faculty mentor.
                 </div>
               </div>
@@ -1144,8 +1144,8 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                     style={{
                       padding: '4px 10px',
                       fontSize: '11px',
-                      background: discCategory === cat ? '#1e3a8a' : '#f1f5f9',
-                      color: discCategory === cat ? '#ffffff' : '#1e293b'
+                      background: discCategory === cat ? 'var(--primary)' : 'var(--surface-2)',
+                      color: discCategory === cat ? '#ffffff' : 'var(--ink)'
                     }}
                     onClick={() => setDiscCategory(cat)}
                   >
@@ -1259,8 +1259,8 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   key={topic.id}
                   className="panel-card"
                   style={{
-                    borderLeft: topic.is_pinned ? '4px solid #1e3a8a' : '1px solid #d1d5db',
-                    background: topic.is_pinned ? '#f8fafc' : '#ffffff'
+                    borderLeft: topic.is_pinned ? '4px solid var(--primary)' : '1px solid var(--line)',
+                    background: topic.is_pinned ? 'var(--bg)' : '#ffffff'
                   }}
                 >
                   <div className="panel-card-header" style={{ alignItems: 'flex-start' }}>
@@ -1274,14 +1274,14 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                         <span className="status-pill status-neutral" style={{ fontSize: '11px' }}>
                           {topic.category}
                         </span>
-                        <span style={{ fontSize: '11px', color: '#64748b' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                           Posted on {topic.created_at}
                         </span>
                       </div>
-                      <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a' }}>
+                      <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--ink)' }}>
                         {topic.title}
                       </h4>
-                      <div style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>
                         Author: <strong>{topic.creator_name}</strong> ({topic.creator_role === 'faculty' ? 'Faculty Mentor' : 'Student'})
                       </div>
                     </div>
@@ -1299,7 +1299,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                         <button
                           type="button"
                           className="btn-secondary"
-                          style={{ fontSize: '11px', padding: '2px 8px', color: '#b91c1c' }}
+                          style={{ fontSize: '11px', padding: '2px 8px', color: 'var(--bad-ink)' }}
                           onClick={() => handleDeleteTopic(topic.id)}
                         >
                           Delete
@@ -1309,13 +1309,13 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   </div>
 
                   <div className="panel-card-body">
-                    <div style={{ fontSize: '13px', color: '#1e293b', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: '16px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--ink)', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: '16px' }}>
                       {topic.content}
                     </div>
 
                     {/* Replies Stream */}
-                    <div style={{ background: '#f1f5f9', borderRadius: '4px', padding: '12px', marginTop: '12px' }}>
-                      <div style={{ fontSize: '12px', fontWeight: '700', color: '#334155', marginBottom: '8px' }}>
+                    <div style={{ background: 'var(--surface-2)', borderRadius: '4px', padding: '12px', marginTop: '12px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ink)', marginBottom: '8px' }}>
                         Responses & Comments ({topic.replies?.length || 0}):
                       </div>
 
@@ -1326,32 +1326,32 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                               key={rep.id}
                               style={{
                                 background: '#ffffff',
-                                border: '1px solid #e2e8f0',
+                                border: '1px solid var(--line)',
                                 borderRadius: '4px',
                                 padding: '8px 12px'
                               }}
                             >
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                                <span style={{ fontSize: '12px', fontWeight: '700', color: rep.author_role === 'faculty' ? '#1e3a8a' : '#0f172a' }}>
+                                <span style={{ fontSize: '12px', fontWeight: '700', color: rep.author_role === 'faculty' ? 'var(--primary)' : 'var(--ink)' }}>
                                   {rep.author_name}
                                   {rep.author_role === 'faculty' && (
-                                    <span style={{ marginLeft: '6px', fontSize: '9px', background: '#15803d', color: '#fff', padding: '1px 5px', borderRadius: '3px' }}>
+                                    <span style={{ marginLeft: '6px', fontSize: '9px', background: 'var(--good-ink)', color: '#fff', padding: '1px 5px', borderRadius: '3px' }}>
                                       Mentor
                                     </span>
                                   )}
                                 </span>
-                                <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                                <span style={{ fontSize: '10px', color: 'var(--muted)' }}>
                                   {rep.created_at}
                                 </span>
                               </div>
-                              <div style={{ fontSize: '12px', color: '#334155', lineHeight: '1.4' }}>
+                              <div style={{ fontSize: '12px', color: 'var(--ink)', lineHeight: '1.4' }}>
                                 {rep.reply_text}
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div style={{ fontSize: '12px', color: '#64748b', fontStyle: 'italic', marginBottom: '10px' }}>
+                        <div style={{ fontSize: '12px', color: 'var(--muted)', fontStyle: 'italic', marginBottom: '10px' }}>
                           No comments posted yet. Be the first to reply.
                         </div>
                       )}
@@ -1386,7 +1386,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                 </div>
               ))
             ) : (
-              <div className="panel-card" style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
+              <div className="panel-card" style={{ padding: '24px', textAlign: 'center', color: 'var(--muted)' }}>
                 No discussion topics found matching the selected filter.
               </div>
             )}
@@ -1403,7 +1403,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
             <div className="panel-card-header">
               <div>
                 <h3 className="panel-card-title">Online Meetings & 1-on-1 Consultation Slots</h3>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>
+                <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
                   Schedule official mentoring discussions, review academic performance, and join verified Google Meet video conferences.
                 </div>
               </div>
@@ -1444,17 +1444,17 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                         <tr key={m.id}>
                           <td>
                             <strong>{m.requested_date}</strong>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>{m.requested_slot}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{m.requested_slot}</div>
                           </td>
                           <td>
                             <strong>{m.student_name}</strong>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>{m.usn}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{m.usn}</div>
                           </td>
                           <td>{m.meeting_type}</td>
                           <td>
-                            <div style={{ fontSize: '12px', fontWeight: '500', color: '#0f172a' }}>{m.agenda}</div>
+                            <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--ink)' }}>{m.agenda}</div>
                             {m.mentor_notes && (
-                              <div style={{ fontSize: '11px', color: '#15803d', marginTop: '2px' }}>
+                              <div style={{ fontSize: '11px', color: 'var(--good-ink)', marginTop: '2px' }}>
                                 Mentor Note: {m.mentor_notes}
                               </div>
                             )}
@@ -1482,10 +1482,10 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                                   Join Google Meet
                                 </a>
                               ) : (
-                                <span style={{ fontSize: '11px', color: '#64748b' }}>Pending URL</span>
+                                <span style={{ fontSize: '11px', color: 'var(--muted)' }}>Pending URL</span>
                               )
                             ) : (
-                              <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                                 {m.status === 'Requested' ? 'Pending Approval' : 'No link'}
                               </span>
                             )}
@@ -1512,7 +1512,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                     })
                   ) : (
                     <tr>
-                      <td colSpan={isFaculty ? 7 : 6} style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>
+                      <td colSpan={isFaculty ? 7 : 6} style={{ textAlign: 'center', color: 'var(--muted)', padding: '20px' }}>
                         No meeting sessions scheduled yet.
                       </td>
                     </tr>
@@ -1693,7 +1693,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                       value={meetingLinkInput}
                       onChange={(e) => setMeetingLinkInput(e.target.value)}
                     />
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
                       Enter manual meeting URL or leave blank for standard institutional Google Meet link.
                     </div>
                   </div>
@@ -1738,27 +1738,27 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
           {/* Institutional Header Banner */}
           <div style={{
             background: '#ffffff',
-            border: '2px solid #1e3a8a',
+            border: '2px solid var(--primary)',
             borderRadius: '4px',
             padding: '16px',
             marginBottom: '20px',
             boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
           }}>
-            <div style={{ textAlign: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px', marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#1e3a8a', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            <div style={{ textAlign: 'center', borderBottom: '1px solid var(--line)', paddingBottom: '12px', marginBottom: '12px' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
                 APEX INSTITUTE OF ENGINEERING & TECHNOLOGY
               </h2>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--ink)', marginTop: '2px' }}>
                 DEPARTMENT OF COMPUTER SCIENCE & ENGINEERING
               </div>
-              <div style={{ fontSize: '13px', fontWeight: '800', color: '#15803d', marginTop: '4px', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: 'var(--good-ink)', marginTop: '4px', textTransform: 'uppercase' }}>
                 OFFICIAL DIGITAL MENTOR BOOK (STUDENT ACADEMIC & PROGRESSION RECORD)
               </div>
             </div>
 
             {/* Quick Actions Bar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-              <div style={{ fontSize: '12px', color: '#475569' }}>
+              <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
                 Accredited Institutional Mentoring Record | Permanent Student Dossier
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -1835,7 +1835,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
               </div>
               <div>
                 <div className="id-field-label">University Seat Number (USN)</div>
-                <div className="id-field-value" style={{ color: '#1e3a8a' }}>{mentorBook?.student_info?.usn || '1MS21CS084'}</div>
+                <div className="id-field-value" style={{ color: 'var(--primary)' }}>{mentorBook?.student_info?.usn || '1MS21CS084'}</div>
               </div>
               <div>
                 <div className="id-field-label">Department & Degree</div>
@@ -1878,29 +1878,29 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
             <div className="panel-card-body">
               {/* Semester-wise SGPA Progress */}
               <div style={{ marginBottom: '14px' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ink)', marginBottom: '8px' }}>
                   Semester-wise SGPA Progression History:
                 </h4>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                   {mentorBook?.academics?.gpa_history?.map((g) => (
                     <div key={g.semester} style={{
                       flex: '1 1 110px',
-                      background: '#f8fafc',
-                      border: '1px solid #e2e8f0',
+                      background: 'var(--bg)',
+                      border: '1px solid var(--line)',
                       borderRadius: '4px',
                       padding: '8px',
                       textAlign: 'center'
                     }}>
-                      <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>Semester {g.semester}</div>
-                      <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e3a8a' }}>{g.sgpa}</div>
-                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>{g.total_credits} Credits</div>
+                      <div style={{ fontSize: '11px', color: 'var(--muted)', fontWeight: '600' }}>Semester {g.semester}</div>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary)' }}>{g.sgpa}</div>
+                      <div style={{ fontSize: '10px', color: 'var(--muted)' }}>{g.total_credits} Credits</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Subject Marks Table */}
-              <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', marginBottom: '8px' }}>
+              <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--ink)', marginBottom: '8px' }}>
                 Continuous Internal Evaluation (CIE) & Semester End Performance:
               </h4>
               <div className="table-responsive">
@@ -1931,7 +1931,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                         <td>{m.external_marks}</td>
                         <td><strong>{m.total_marks}</strong></td>
                         <td>
-                          <span style={{ fontWeight: '700', color: m.grade === 'O' || m.grade === 'A+' ? '#15803d' : '#0f172a' }}>
+                          <span style={{ fontWeight: '700', color: m.grade === 'O' || m.grade === 'A+' ? 'var(--good-ink)' : 'var(--ink)' }}>
                             {m.grade}
                           </span>
                         </td>
@@ -1997,7 +1997,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   </tbody>
                 </table>
               </div>
-              <div style={{ fontSize: '12px', color: '#475569', marginTop: '10px', background: '#f8fafc', padding: '8px 12px', borderRadius: '4px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '10px', background: 'var(--bg)', padding: '8px 12px', borderRadius: '4px' }}>
                 <strong>On Duty (OD) Policy Note:</strong> 4 OD hours verified for participation in National Smart Campus Hackathon. Student meets institutional 75% attendance criteria across all course offerings.
               </div>
             </div>
@@ -2018,53 +2018,53 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                     <div
                       key={sess.id}
                       style={{
-                        border: '1px solid #d1d5db',
+                        border: '1px solid var(--line)',
                         borderRadius: '4px',
                         padding: '12px',
                         background: '#ffffff'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px solid #f1f5f9', paddingBottom: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', borderBottom: '1px solid #F1EDF5', paddingBottom: '6px' }}>
                         <div>
-                          <span style={{ fontSize: '14px', fontWeight: '700', color: '#1e3a8a' }}>
+                          <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary)' }}>
                             {sess.session_type} (Semester {sess.semester})
                           </span>
-                          <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '10px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--muted)', marginLeft: '10px' }}>
                             Date: {sess.session_date}
                           </span>
                         </div>
-                        <span style={{ fontSize: '11px', color: '#64748b' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                           Recorded by: <strong>{sess.recorded_by}</strong>
                         </span>
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', fontSize: '12px' }}>
                         <div>
-                          <div style={{ color: '#64748b', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                          <div style={{ color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                             Topics Discussed
                           </div>
-                          <div style={{ color: '#0f172a', marginTop: '2px' }}>{sess.topics_discussed}</div>
+                          <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{sess.topics_discussed}</div>
                         </div>
                         <div>
-                          <div style={{ color: '#64748b', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                          <div style={{ color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                             Student Concerns
                           </div>
-                          <div style={{ color: '#0f172a', marginTop: '2px' }}>{sess.student_concerns || 'None reported.'}</div>
+                          <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{sess.student_concerns || 'None reported.'}</div>
                         </div>
                         <div>
-                          <div style={{ color: '#15803d', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                          <div style={{ color: 'var(--good-ink)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                             Mentor Guidance & Suggestions
                           </div>
-                          <div style={{ color: '#0f172a', marginTop: '2px' }}>{sess.mentor_suggestions}</div>
+                          <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{sess.mentor_suggestions}</div>
                         </div>
                         <div>
-                          <div style={{ color: '#1e3a8a', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                          <div style={{ color: 'var(--primary)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                             Agreed Action Items & Next Review
                           </div>
-                          <div style={{ color: '#0f172a', marginTop: '2px' }}>
+                          <div style={{ color: 'var(--ink)', marginTop: '2px' }}>
                             {sess.action_items}
                             {sess.next_meeting_date && (
-                              <div style={{ marginTop: '2px', color: '#475569', fontStyle: 'italic' }}>
+                              <div style={{ marginTop: '2px', color: 'var(--muted)', fontStyle: 'italic' }}>
                                 Next Follow-up: {sess.next_meeting_date}
                               </div>
                             )}
@@ -2075,7 +2075,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   ))}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>
+                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '20px' }}>
                   No formal mentoring meeting sessions recorded yet.
                 </div>
               )}
@@ -2141,46 +2141,46 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
             <div className="panel-card-body">
               {mentorBook?.remarks?.length > 0 ? (
                 mentorBook.remarks.map((r) => (
-                  <div key={r.id || r.semester} style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '14px', marginBottom: '14px' }}>
+                  <div key={r.id || r.semester} style={{ borderBottom: '1px solid var(--line)', paddingBottom: '14px', marginBottom: '14px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e3a8a' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary)' }}>
                         Semester {r.semester} Comprehensive Mentor Evaluation
                       </span>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
                         Evaluator: <strong>{r.updated_by}</strong> ({r.updated_at})
                       </span>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', fontSize: '12px' }}>
                       <div>
-                        <div style={{ color: '#64748b', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                        <div style={{ color: 'var(--muted)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                           Academic Observations
                         </div>
-                        <div style={{ color: '#0f172a', marginTop: '2px' }}>{r.academic_observations}</div>
+                        <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{r.academic_observations}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#15803d', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                        <div style={{ color: 'var(--good-ink)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                           Key Strengths
                         </div>
-                        <div style={{ color: '#0f172a', marginTop: '2px' }}>{r.strengths}</div>
+                        <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{r.strengths}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#b91c1c', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                        <div style={{ color: 'var(--bad-ink)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                           Weaknesses & Areas Requiring Improvement
                         </div>
-                        <div style={{ color: '#0f172a', marginTop: '2px' }}>{r.areas_requiring_improvement || r.weaknesses}</div>
+                        <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{r.areas_requiring_improvement || r.weaknesses}</div>
                       </div>
                       <div>
-                        <div style={{ color: '#1e3a8a', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
+                        <div style={{ color: 'var(--primary)', fontWeight: '600', textTransform: 'uppercase', fontSize: '10px' }}>
                           Recommendations & Progression Guidance
                         </div>
-                        <div style={{ color: '#0f172a', marginTop: '2px' }}>{r.mentor_recommendations}</div>
+                        <div style={{ color: 'var(--ink)', marginTop: '2px' }}>{r.mentor_recommendations}</div>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>
+                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '20px' }}>
                   No official mentor remarks logged for this student yet.
                 </div>
               )}
@@ -2214,7 +2214,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                           <td>{f.submitted_at}</td>
                           <td><strong>{f.session_title}</strong></td>
                           <td>
-                            <span style={{ fontWeight: '700', color: '#1e3a8a' }}>
+                            <span style={{ fontWeight: '700', color: 'var(--primary)' }}>
                               {f.rating} / 5
                             </span>
                           </td>
@@ -2226,7 +2226,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                           <td>
                             <div>{f.feedback_text}</div>
                             {f.suggestions && (
-                              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                              <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '2px' }}>
                                 Suggestion: {f.suggestions}
                               </div>
                             )}
@@ -2237,7 +2237,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                   </table>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', color: '#64748b', padding: '16px' }}>
+                <div style={{ textAlign: 'center', color: 'var(--muted)', padding: '16px' }}>
                   No student feedback submitted yet.
                 </div>
               )}
@@ -2812,7 +2812,7 @@ export default function FacultyMentorView({ userRole = 'student', currentUser = 
                       <td>{s.department} (Sem {s.semester})</td>
                       <td>
                         <strong>{s.mentor_name}</strong>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>{s.mentor_faculty_id}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{s.mentor_faculty_id}</div>
                       </td>
                       <td>{s.group_name}</td>
                       <td>{s.cgpa || '--'}</td>
