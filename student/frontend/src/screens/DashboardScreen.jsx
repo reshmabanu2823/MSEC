@@ -22,8 +22,6 @@ function SectionHeader({ title, actionLabel, onAction }) {
 }
 
 export default function DashboardHome({ onNavigate, currentUser, onOpenOnboarding }) {
-  const online = useOnline();
-  const [submitError, setSubmitError] = useState('');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
